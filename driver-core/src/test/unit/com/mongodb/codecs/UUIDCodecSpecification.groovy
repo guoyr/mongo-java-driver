@@ -18,11 +18,18 @@
 
 package com.mongodb.codecs
 
+import org.bson.BsonBinaryReader
 import org.bson.BsonBinaryWriter
+import org.bson.ByteBuf
+import org.bson.ByteBufNIO
+import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
+import org.bson.io.BasicInputBuffer
 import org.bson.io.BasicOutputBuffer
 import spock.lang.Shared
 import spock.lang.Specification
+
+import java.nio.ByteBuffer
 
 /**
  *
@@ -35,6 +42,32 @@ class UUIDCodecSpecification extends Specification {
     def setup() {
         uuidCodec = new UUIDCodec();
         outputBuffer = new BasicOutputBuffer();
+    }
+
+    def 'should decode long as little endian'() throws IOException {
+        given:
+        byte[] list = [0, 0, 0, 0,       //Start of document
+                               5,                // type (BINARY)
+                               95, 105, 100, 0,  // "_id"
+                               16, 0, 0, 0,      // int "16" (length)
+                               3,                // type (B_UUID_LEGACY)
+                               2, 0, 0, 0, 0, 0, 0, 0,
+                               1, 0, 0, 0, 0, 0, 0, 0]; //8 bytes for long, 2 longs for UUID, Little Endian
+        BasicInputBuffer inputBuffer = new BasicInputBuffer(new ByteBufNIO(ByteBuffer.wrap(list)))
+        BsonBinaryReader bsonReader = new BsonBinaryReader(inputBuffer, false)
+        UUID expectedUuid = new UUID(2L, 1L)
+
+        bsonReader.readStartDocument()
+        bsonReader.readName()
+
+        when:
+        UUID actualUuid = uuidCodec.decode(bsonReader, DecoderContext.builder().build())
+
+        then:
+        expectedUuid == actualUuid
+
+        cleanup:
+        bsonReader.close()
     }
 
     def 'should encode long as little endian'() throws IOException {
