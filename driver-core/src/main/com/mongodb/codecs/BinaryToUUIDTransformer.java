@@ -62,7 +62,7 @@ public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
 
         }
 
-        return new UUID(readLongFromArrayLittleEndian(binaryData, 0), readLongFromArrayLittleEndian(binaryData, 8));
+        return new UUID(readLongFromArrayBigEndian(binaryData, 0), readLongFromArrayBigEndian(binaryData, 8));
     }
 
     // reverse elements in the subarray data[i:i1]
@@ -85,6 +85,19 @@ public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
         x |= (0xFFL & bytes[offset + 5]) << 40;
         x |= (0xFFL & bytes[offset + 6]) << 48;
         x |= (0xFFL & bytes[offset + 7]) << 56;
+        return x;
+    }
+
+    private static long readLongFromArrayBigEndian(final byte[] bytes, final int offset) {
+        long x = 0;
+        x |= (0xFFL & bytes[offset + 7]);
+        x |= (0xFFL & bytes[offset + 6]) << 8;
+        x |= (0xFFL & bytes[offset + 5]) << 16;
+        x |= (0xFFL & bytes[offset + 4]) << 24;
+        x |= (0xFFL & bytes[offset + 3]) << 32;
+        x |= (0xFFL & bytes[offset + 2]) << 40;
+        x |= (0xFFL & bytes[offset + 1]) << 48;
+        x |= (0xFFL & bytes[offset]) << 56;
         return x;
     }
 }
