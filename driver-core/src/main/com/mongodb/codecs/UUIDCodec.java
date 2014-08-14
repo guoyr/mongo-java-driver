@@ -45,8 +45,7 @@ public class UUIDCodec implements Codec<UUID> {
     @Override
     public UUID decode(final BsonReader reader, final DecoderContext decoderContext) {
         BsonBinary binaryData = reader.readBinaryData();
-        BinaryToUUIDTransformer transformer = new BinaryToUUIDTransformer();
-        transformer.setDecoderContext(decoderContext);
+        BinaryToUUIDTransformer transformer = new BinaryToUUIDTransformer(decoderContext.getUuidRepresentation());
         return transformer.transform(binaryData);
     }
 

@@ -19,7 +19,7 @@ package com.mongodb.codecs;
 import org.bson.BSONException;
 import org.bson.BsonBinary;
 import org.bson.BsonInvalidOperationException;
-import org.bson.codecs.DecoderContext;
+import org.bson.UuidRepresentation;
 
 import java.util.UUID;
 
@@ -30,14 +30,13 @@ import java.util.UUID;
  */
 public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
 
-    private DecoderContext decoderContext;
+    private UuidRepresentation uuidRepresentation;
 
-    public DecoderContext getDecoderContext() {
-        return decoderContext;
+    public BinaryToUUIDTransformer() {
     }
 
-    public void setDecoderContext(DecoderContext decoderContext) {
-        this.decoderContext = decoderContext;
+    public BinaryToUUIDTransformer(UuidRepresentation uuidRepresentation) {
+        this.uuidRepresentation = uuidRepresentation;
     }
 
     @Override
@@ -45,7 +44,7 @@ public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
 
         byte[] binaryData = binary.getData();
 
-        switch (decoderContext.getUuidRepresentation()) {
+        switch (uuidRepresentation) {
             case C_SHARP_LEGACY:
                 break;
             case JAVA_LEGACY:
