@@ -16,7 +16,10 @@
 
 package com.mongodb.codecs;
 
+import org.bson.BSONException;
 import org.bson.BsonBinary;
+import org.bson.BsonInvalidOperationException;
+import org.bson.codecs.DecoderContext;
 
 import java.util.UUID;
 
@@ -26,9 +29,51 @@ import java.util.UUID;
  * @since 3.0
  */
 public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
+
+    private DecoderContext decoderContext;
+
+    public DecoderContext getDecoderContext() {
+        return decoderContext;
+    }
+
+    public void setDecoderContext(DecoderContext decoderContext) {
+        this.decoderContext = decoderContext;
+    }
+
     @Override
     public UUID transform(final BsonBinary binary) {
-        return new UUID(readLongFromArrayLittleEndian(binary.getData(), 0), readLongFromArrayLittleEndian(binary.getData(), 8));
+
+        byte[] binaryData = binary.getData();
+
+        switch (decoderContext.getUuidRepresentation()) {
+            case C_SHARP_LEGACY:
+                break;
+            case JAVA_LEGACY:
+                reverse(binaryData, 0, 8);
+                reverse(binaryData, 8, 8);
+                break;
+            case PYTHON_LEGACY:
+            case STANDARD:
+                break;
+            case UNSPECIFIED:
+                throw new BsonInvalidOperationException(
+                        "Unable to convert byte array to Guid because GuidRepresentation is Unspecified.");
+            default:
+                throw new BSONException("Unexpected UUID representation");
+
+        }
+
+        return new UUID(readLongFromArrayLittleEndian(binaryData, 0), readLongFromArrayLittleEndian(binaryData, 8));
+    }
+
+    // reverse elements in the subarray data[i:i1]
+    private void reverse(final byte[] data, final int start, final int length) {
+        for (int left = start, right = start+length-1; left < right; left++, right--) {
+            // swap the values at the left and right indices
+            byte temp = data[left];
+            data[left]  = data[right];
+            data[right] = temp;
+        }
     }
 
     private static long readLongFromArrayLittleEndian(final byte[] bytes, final int offset) {

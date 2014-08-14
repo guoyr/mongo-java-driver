@@ -16,6 +16,8 @@
 
 package org.bson.codecs;
 
+import org.bson.UuidRepresentation;
+
 /**
  * The context for decoding values to BSON.  Currently this is a placeholder, as there is nothing needed yet.
  *
@@ -23,6 +25,13 @@ package org.bson.codecs;
  * @since 3.0
  */
 public final class DecoderContext {
+
+    UuidRepresentation uuidRepresentation;
+
+    public UuidRepresentation getUuidRepresentation() {
+        return uuidRepresentation;
+    }
+
     /**
      * Create a builder.
      *
@@ -36,7 +45,14 @@ public final class DecoderContext {
      * A builder for {@code DecoderContext} instances.
      */
     public static final class Builder {
+        private UuidRepresentation uuidRepresentation = UuidRepresentation.JAVA_LEGACY;
+
         private Builder() {
+        }
+
+        public Builder uuidRepresentation(UuidRepresentation uuidRepresentation) {
+            this.uuidRepresentation = uuidRepresentation;
+            return this;
         }
 
         /**
@@ -44,10 +60,11 @@ public final class DecoderContext {
          * @return the decoder context
          */
         public DecoderContext build() {
-            return new DecoderContext(this);
+            return new DecoderContext(uuidRepresentation);
         }
     }
 
-    private DecoderContext(final Builder builder) {
+    private DecoderContext(UuidRepresentation uuidRepresentation) {
+        this.uuidRepresentation = uuidRepresentation;
     }
 }
