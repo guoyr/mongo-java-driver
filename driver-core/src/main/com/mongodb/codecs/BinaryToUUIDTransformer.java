@@ -19,6 +19,7 @@ package com.mongodb.codecs;
 import org.bson.BSONException;
 import org.bson.BsonBinary;
 import org.bson.BsonInvalidOperationException;
+import org.bson.BsonSerializationException;
 import org.bson.UuidRepresentation;
 
 import java.util.UUID;
@@ -35,7 +36,7 @@ public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
     public BinaryToUUIDTransformer() {
     }
 
-    public BinaryToUUIDTransformer(UuidRepresentation uuidRepresentation) {
+    public BinaryToUUIDTransformer(final UuidRepresentation uuidRepresentation) {
         this.uuidRepresentation = uuidRepresentation;
     }
 
@@ -44,8 +45,15 @@ public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
 
         byte[] binaryData = binary.getData();
 
+        if (binaryData.length != 16) {
+            throw new BsonSerializationException(String.format("Expected length to be 16, not %d.", binaryData.length));
+        }
+
         switch (uuidRepresentation) {
             case C_SHARP_LEGACY:
+                reverse(binaryData, 0, 4);
+                reverse(binaryData, 4, 2);
+                reverse(binaryData, 6, 2);
                 break;
             case JAVA_LEGACY:
                 reverse(binaryData, 0, 8);
@@ -67,25 +75,12 @@ public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
 
     // reverse elements in the subarray data[i:i1]
     private void reverse(final byte[] data, final int start, final int length) {
-        for (int left = start, right = start+length-1; left < right; left++, right--) {
+        for (int left = start, right = start + length - 1; left < right; left++, right--) {
             // swap the values at the left and right indices
             byte temp = data[left];
             data[left]  = data[right];
             data[right] = temp;
         }
-    }
-
-    private static long readLongFromArrayLittleEndian(final byte[] bytes, final int offset) {
-        long x = 0;
-        x |= (0xFFL & bytes[offset]);
-        x |= (0xFFL & bytes[offset + 1]) << 8;
-        x |= (0xFFL & bytes[offset + 2]) << 16;
-        x |= (0xFFL & bytes[offset + 3]) << 24;
-        x |= (0xFFL & bytes[offset + 4]) << 32;
-        x |= (0xFFL & bytes[offset + 5]) << 40;
-        x |= (0xFFL & bytes[offset + 6]) << 48;
-        x |= (0xFFL & bytes[offset + 7]) << 56;
-        return x;
     }
 
     private static long readLongFromArrayBigEndian(final byte[] bytes, final int offset) {
