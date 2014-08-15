@@ -18,11 +18,12 @@ package com.mongodb.codecs;
 
 import org.bson.BSONException;
 import org.bson.BsonBinary;
+import org.bson.BsonBinarySubType;
 import org.bson.BsonInvalidOperationException;
 import org.bson.BsonSerializationException;
 import org.bson.UuidRepresentation;
-
 import java.util.UUID;
+import static com.mongodb.codecs.CodecHelper.reverseByteArray;
 
 /**
  * A transformer from {@code BsonBinary} to {@code UUID}.
@@ -49,39 +50,36 @@ public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
             throw new BsonSerializationException(String.format("Expected length to be 16, not %d.", binaryData.length));
         }
 
-        switch (uuidRepresentation) {
-            case C_SHARP_LEGACY:
-                reverse(binaryData, 0, 4);
-                reverse(binaryData, 4, 2);
-                reverse(binaryData, 6, 2);
-                break;
-            case JAVA_LEGACY:
-                reverse(binaryData, 0, 8);
-                reverse(binaryData, 8, 8);
-                break;
-            case PYTHON_LEGACY:
-            case STANDARD:
-                break;
-            case UNSPECIFIED:
-                throw new BsonInvalidOperationException(
-                        "Unable to convert byte array to Guid because GuidRepresentation is Unspecified.");
-            default:
-                throw new BSONException("Unexpected UUID representation");
-
+        if (binary.getType() == BsonBinarySubType.UUID_LEGACY.getValue()) {
+            switch (uuidRepresentation) {
+                case C_SHARP_LEGACY:
+                    reverseByteArray(binaryData, 0, 4);
+                    reverseByteArray(binaryData, 4, 2);
+                    reverseByteArray(binaryData, 6, 2);
+                    break;
+                case JAVA_LEGACY:
+                    reverseByteArray(binaryData, 0, 8);
+                    reverseByteArray(binaryData, 8, 8);
+                    break;
+                case PYTHON_LEGACY:
+                case STANDARD:
+                    break;
+                case UNSPECIFIED:
+                    throw new BsonInvalidOperationException(
+                            "Unable to convert byte array to UUID because uuidRepresentation is Unspecified.");
+                default:
+                    throw new BSONException("Unexpected UUID representation");
+            }
         }
-
-        return new UUID(readLongFromArrayBigEndian(binaryData, 0), readLongFromArrayBigEndian(binaryData, 8));
-    }
-
-    // reverse elements in the subarray data[i:i1]
-    private void reverse(final byte[] data, final int start, final int length) {
-        for (int left = start, right = start + length - 1; left < right; left++, right--) {
-            // swap the values at the left and right indices
-            byte temp = data[left];
-            data[left]  = data[right];
-            data[right] = temp;
+        if (binary.getType() == BsonBinarySubType.UUID_LEGACY.getValue()
+                || binary.getType() == BsonBinarySubType.UUID_STANDARD.getValue()) {
+            return new UUID(readLongFromArrayBigEndian(binaryData, 0), readLongFromArrayBigEndian(binaryData, 8));
+        } else {
+            throw new BSONException("Unexpected BsonBinarySubType");
         }
     }
+
+
 
     private static long readLongFromArrayBigEndian(final byte[] bytes, final int offset) {
         long x = 0;

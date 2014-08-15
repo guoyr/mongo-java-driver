@@ -26,7 +26,7 @@ import org.bson.UuidRepresentation;
  */
 public final class DecoderContext {
 
-    UuidRepresentation uuidRepresentation;
+    private UuidRepresentation uuidRepresentation;
 
     public UuidRepresentation getUuidRepresentation() {
         return uuidRepresentation;
