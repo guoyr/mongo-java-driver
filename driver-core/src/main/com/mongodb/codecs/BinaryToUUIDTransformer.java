@@ -19,7 +19,6 @@ package com.mongodb.codecs;
 import org.bson.BSONException;
 import org.bson.BsonBinary;
 import org.bson.BsonBinarySubType;
-import org.bson.BsonInvalidOperationException;
 import org.bson.BsonSerializationException;
 import org.bson.UuidRepresentation;
 import java.util.UUID;
@@ -32,7 +31,7 @@ import static com.mongodb.codecs.CodecHelper.reverseByteArray;
  */
 public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
 
-    private UuidRepresentation uuidRepresentation;
+    private UuidRepresentation uuidRepresentation = UuidRepresentation.JAVA_LEGACY;
 
     public BinaryToUUIDTransformer() {
     }
@@ -64,9 +63,6 @@ public class BinaryToUUIDTransformer implements BinaryTransformer<UUID> {
                 case PYTHON_LEGACY:
                 case STANDARD:
                     break;
-                case UNSPECIFIED:
-                    throw new BsonInvalidOperationException(
-                            "Unable to convert byte array to UUID because uuidRepresentation is Unspecified.");
                 default:
                     throw new BSONException("Unexpected UUID representation");
             }

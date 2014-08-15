@@ -19,7 +19,6 @@ package com.mongodb.codecs;
 import org.bson.BSONException;
 import org.bson.BsonBinary;
 import org.bson.BsonBinarySubType;
-import org.bson.BsonInvalidOperationException;
 import org.bson.BsonReader;
 import org.bson.BsonWriter;
 import org.bson.UuidRepresentation;
@@ -55,9 +54,6 @@ public class UUIDCodec implements Codec<UUID> {
             case PYTHON_LEGACY:
             case STANDARD:
                 break;
-            case UNSPECIFIED:
-                throw new BsonInvalidOperationException(
-                        "Unable to convert UUID to byte array because uuidRepresentation is Unspecified.");
             default:
                 throw new BSONException("Unexpected UUID representation");
         }

@@ -20,7 +20,6 @@ package com.mongodb.codecs
 
 import org.bson.BsonBinaryReader
 import org.bson.BsonBinaryWriter
-import org.bson.BsonInvalidOperationException
 import org.bson.ByteBufNIO
 import org.bson.UuidRepresentation
 import org.bson.codecs.DecoderContext
@@ -105,35 +104,6 @@ class UUIDCodecSpecification extends Specification {
                 DecoderContext.builder().uuidRepresentation(UuidRepresentation.C_SHARP_LEGACY),
         ]
 
-    }
-
-    def 'should throw error on undefined UUID representation'() throws IOException {
-
-        given:
-        byte[] list = [0, 0, 0, 0,       //Start of document
-                       5,                // type (BINARY)
-                       95, 105, 100, 0,  // "_id"
-                       16, 0, 0, 0,      // int "16" (length)
-                       3,                // type (B_UUID_LEGACY) JAVA_LEGACY
-                       2, 0, 0, 0, 0, 0, 0, 0,
-                       1, 0, 0, 0, 0, 0, 0, 0] //8 bytes for long, 2 longs for UUID, Little Endian
-
-        BasicInputBuffer inputBuffer = new BasicInputBuffer(new ByteBufNIO(ByteBuffer.wrap(list)))
-        BsonBinaryReader bsonReader = new BsonBinaryReader(inputBuffer, false)
-
-        DecoderContext.Builder builder = DecoderContext.builder().uuidRepresentation(UuidRepresentation.UNSPECIFIED)
-
-        bsonReader.readStartDocument()
-        bsonReader.readName()
-
-        when:
-        uuidCodec.decode(bsonReader, builder.build())
-
-        then:
-        thrown(BsonInvalidOperationException)
-
-        cleanup:
-        bsonReader.close()
     }
 
     def 'should encode different types of UUIDs'(byte[] expectedList,

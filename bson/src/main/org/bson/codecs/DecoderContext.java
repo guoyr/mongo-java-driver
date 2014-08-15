@@ -50,7 +50,21 @@ public final class DecoderContext {
         private Builder() {
         }
 
+        /**
+         * Sets the UUID Representation
+         *
+         * default is JAVA_LEGACY for compatability reasons
+         * Use STANDARD for any empty collection
+         *
+         * @param uuidRepresentation the representation of UUID
+         * @return the builder
+         * @since 3.0
+         * @see org.bson.UuidRepresentation
+         */
         public Builder uuidRepresentation(UuidRepresentation uuidRepresentation) {
+            if (uuidRepresentation == null) {
+                throw new IllegalArgumentException("uuidRepresentation" + " can not be null");
+            }
             this.uuidRepresentation = uuidRepresentation;
             return this;
         }
