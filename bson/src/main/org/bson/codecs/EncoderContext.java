@@ -67,6 +67,16 @@ public final class EncoderContext {
         private Builder() {
         }
 
+        /**
+         * Sets the UUID representation
+         *
+         * Default is JAVA_LEGACY for compatibility reasons
+         *
+         * @param uuidRepresentation the representation of UUID
+         * @return the Builder
+         * @since 3.0
+         * @see org.bson.UuidRepresentation
+         */
         public Builder uuidRepresentation(UuidRepresentation uuidRepresentation) {
             this.uuidRepresentation = uuidRepresentation;
             return this;

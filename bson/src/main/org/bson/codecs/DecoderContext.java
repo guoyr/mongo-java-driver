@@ -51,10 +51,9 @@ public final class DecoderContext {
         }
 
         /**
-         * Sets the UUID Representation
+         * Sets the UUID representation
          *
-         * default is JAVA_LEGACY for compatability reasons
-         * Use STANDARD for any empty collection
+         * default is JAVA_LEGACY for compatibility reasons
          *
          * @param uuidRepresentation the representation of UUID
          * @return the builder
