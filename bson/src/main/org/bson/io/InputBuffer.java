@@ -31,6 +31,8 @@ import java.io.Closeable;
 public interface InputBuffer extends Closeable {
     int getPosition();
 
+    void setPosition(int newPosition);
+
     boolean readBoolean();
 
     byte readByte();

@@ -16,6 +16,8 @@
 
 package com.mongodb.codecs
 
+import org.bson.BsonBinaryReader
+import org.bson.BsonBinaryWriter
 import org.bson.BsonDbPointer
 import org.bson.BsonDocument
 import org.bson.BsonDocumentReader
@@ -25,8 +27,13 @@ import org.bson.BsonRegularExpression
 import org.bson.BsonTimestamp
 import org.bson.BsonUndefined
 import org.bson.BsonWriter
+import org.bson.ByteBufNIO
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
+import org.bson.io.BasicInputBuffer
+import org.bson.io.BasicOutputBuffer
+import org.bson.json.JsonReader
+import org.bson.json.JsonWriter
 import org.bson.types.Binary
 import org.bson.types.Code
 import org.bson.types.MaxKey
@@ -38,21 +45,23 @@ import org.mongodb.Document
 import spock.lang.Shared
 import spock.lang.Specification
 
+import java.nio.ByteBuffer
+
 import static java.util.Arrays.asList
 
 class DocumentCodecSpecification extends Specification {
 
     @Shared BsonDocument bsonDoc = new BsonDocument()
+    @Shared StringWriter stringWriter = new StringWriter()
 
-    def 'should encode and decode all default types with all readers and writers' (BsonReader reader,
-                                                                                   BsonWriter writer) {
+    def 'should encode and decode all default types with all readers and writers' (BsonWriter writer) {
         given:
 
         def doc = new Document()
         doc.with {
+            put('int64', 52L)
             put('null', null)
             put('int32', 42)
-            put('int64', 52L)
             put('booleanTrue', true)
             put('booleanFalse', false)
             put('date', new Date())
@@ -75,6 +84,17 @@ class DocumentCodecSpecification extends Specification {
         }
         when:
         new DocumentCodec().encode(writer, doc, EncoderContext.builder().build())
+
+        BsonReader reader
+        if (writer instanceof BsonDocumentWriter) {
+            reader = new BsonDocumentReader(bsonDoc)
+        } else if (writer instanceof BsonBinaryWriter) {
+            reader = new BsonBinaryReader(new BasicInputBuffer(new ByteBufNIO(
+                    ByteBuffer.wrap(writer.buffer.toByteArray()))), true)
+        } else {
+            println(stringWriter.toString())
+            reader = new JsonReader(stringWriter.toString())
+        }
 
         def decodedDoc = new DocumentCodec().decode(reader, DecoderContext.builder().build())
 
@@ -103,11 +123,10 @@ class DocumentCodecSpecification extends Specification {
         decodedDoc.get('document') == doc.get('document')
 
         where:
-        reader << [
-                new BsonDocumentReader(bsonDoc)
-        ]
         writer << [
-                new BsonDocumentWriter(bsonDoc)
+//                new BsonDocumentWriter(bsonDoc),
+//                new BsonBinaryWriter(new BasicOutputBuffer(), false),
+                new JsonWriter(stringWriter)
         ]
 
     }

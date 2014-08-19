@@ -30,6 +30,7 @@ public class BsonBinaryReader extends AbstractBsonReader {
 
     private final InputBuffer buffer;
     private final boolean closeBuffer;
+    private Mark mark;
 
     public BsonBinaryReader(final InputBuffer buffer, final boolean closeBuffer) {
         super();
@@ -334,22 +335,42 @@ public class BsonBinaryReader extends AbstractBsonReader {
 
     @Override
     public void mark() {
-
+        mark = new Mark();
     }
 
     @Override
     public void reset() {
-
+        mark.reset();
     }
 
     @Override
     public void clearMark() {
-
+        mark = null;
     }
 
-    private class Context extends AbstractBsonReader.Context {
+    protected class Mark extends AbstractBsonReader.Mark {
+        private int startPosition;
+        private int size;
+        private int currentPosition;
+
+        protected Mark() {
+            super();
+            startPosition = BsonBinaryReader.this.getContext().startPosition;
+            size = BsonBinaryReader.this.getContext().size;
+            currentPosition = BsonBinaryReader.this.buffer.getPosition();
+        }
+
+        protected void reset() {
+            super.reset();
+            BsonBinaryReader.this.buffer.setPosition(currentPosition);
+            BsonBinaryReader.this.setContext(new Context((Context) parentContext, contextType, startPosition, size));
+        }
+    }
+
+    protected class Context extends AbstractBsonReader.Context {
         private final int startPosition;
         private final int size;
+
 
         Context(final Context parentContext, final BsonContextType contextType, final int startPosition, final int size) {
             super(parentContext, contextType);
@@ -369,21 +390,6 @@ public class BsonBinaryReader extends AbstractBsonReader {
         @Override
         protected Context getParentContext() {
             return (Context) super.getParentContext();
-        }
-
-        @Override
-        protected void mark() {
-
-        }
-
-        @Override
-        protected void reset() {
-
-        }
-
-        @Override
-        protected void clearMark() {
-
         }
     }
 }

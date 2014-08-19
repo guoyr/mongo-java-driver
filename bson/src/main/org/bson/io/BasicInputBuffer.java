@@ -39,6 +39,11 @@ public class BasicInputBuffer implements InputBuffer {
     }
 
     @Override
+    public void setPosition(int newPosition) {
+        buffer.position(newPosition);
+    }
+
+    @Override
     public boolean readBoolean() {
         return buffer.get() == 0x1;
     }

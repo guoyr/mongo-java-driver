@@ -61,6 +61,7 @@ public class JsonReader extends AbstractBsonReader {
     private final JsonScanner scanner;
     private JsonToken pushedToken;
     private Object currentValue;
+    private Mark mark;
 
     /**
      * Constructs a new instance with the given JSON string.
@@ -71,21 +72,6 @@ public class JsonReader extends AbstractBsonReader {
         super();
         scanner = new JsonScanner(json);
         setContext(new Context(null, BsonContextType.TOP_LEVEL));
-    }
-
-    @Override
-    public void mark() {
-
-    }
-
-    @Override
-    public void reset() {
-
-    }
-
-    @Override
-    public void clearMark() {
-
     }
 
     @Override
@@ -980,8 +966,43 @@ public class JsonReader extends AbstractBsonReader {
     }
 
     @Override
+    public void mark() {
+        mark = new Mark();
+    }
+
+    @Override
+    public void reset() {
+        mark.reset();
+    }
+
+    @Override
+    public void clearMark() {
+        mark = null;
+    }
+
+    @Override
     protected Context getContext() {
         return (Context) super.getContext();
+    }
+
+    protected class Mark extends AbstractBsonReader.Mark {
+        private JsonToken pushedToken;
+        private Object currentValue;
+        private int position;
+
+        protected Mark() {
+            super();
+            pushedToken = JsonReader.this.pushedToken;
+            currentValue = JsonReader.this.currentValue;
+            position = JsonReader.this.scanner.getBufferPosition();
+        }
+
+        protected void reset() {
+            super.reset();
+            JsonReader.this.pushedToken = pushedToken;
+            JsonReader.this.currentValue = currentValue;
+            JsonReader.this.scanner.setBufferPosition(position);
+        }
     }
 
     protected class Context extends AbstractBsonReader.Context {
@@ -997,29 +1018,6 @@ public class JsonReader extends AbstractBsonReader {
             return super.getContextType();
         }
 
-        /**
-         *
-         */
-        @Override
-        protected void mark() {
-
-        }
-
-        /**
-         *
-         */
-        @Override
-        protected void reset() {
-
-        }
-
-        /**
-         *
-         */
-        @Override
-        protected void clearMark() {
-
-        }
     }
 }
 

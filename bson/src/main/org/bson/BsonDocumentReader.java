@@ -222,17 +222,34 @@ public class BsonDocumentReader extends AbstractBsonReader {
         return (Context) super.getContext();
     }
 
+    protected class Mark extends AbstractBsonReader.Mark {
+        private BsonDocumentMarkableIterator<Map.Entry<String, BsonValue>> documentIterator;
+        private BsonDocumentMarkableIterator<BsonValue> arrayIterator;
+        private BsonValue currentValue;
+
+        protected Mark() {
+            super();
+            arrayIterator = BsonDocumentReader.this.getContext().arrayIterator;
+            documentIterator = BsonDocumentReader.this.getContext().documentIterator;
+            currentValue = BsonDocumentReader.this.currentValue;
+        }
+
+        protected void reset() {
+            super.reset();
+            BsonDocumentReader.this.currentValue = currentValue;
+            BsonDocumentReader.this.setContext(new Context((Context)parentContext,
+                    contextType,
+                    documentIterator,
+                    arrayIterator));
+        }
+    }
+
     private class BsonDocumentMarkableIterator<T> implements Iterator<T> {
 
         private Iterator<T> baseIterator;
         private ArrayList<T> markIterator = new ArrayList<T>();
         private int curIndex;
-        private boolean marking = false;
-
-        private State markedState;
-        private BsonType currentBsonType;
-        private BsonContextType currentContextType;
-        private AbstractBsonReader.Context parentContext;
+        private Mark mark;
 
         public BsonDocumentMarkableIterator(Iterator<T> baseIterator) {
             this.baseIterator = baseIterator;
@@ -242,23 +259,16 @@ public class BsonDocumentReader extends AbstractBsonReader {
          *
          */
         protected void mark() {
-            markedState = BsonDocumentReader.this.getState();
-            currentBsonType = BsonDocumentReader.this.getCurrentBsonType();
-            currentContextType = BsonDocumentReader.this.getContext().getContextType();
-            parentContext = BsonDocumentReader.this.getContext().getParentContext();
+            mark = new Mark();
             curIndex = Integer.MAX_VALUE;
-            marking = true;
         }
 
         /**
          *
          */
         protected void reset() {
-            BsonDocumentReader.this.setState(markedState);
-            BsonDocumentReader.this.setCurrentBsonType(currentBsonType);
-            BsonDocumentReader.this.getContext().setContextType(currentContextType);
-            BsonDocumentReader.this.getContext().setParentContext(parentContext);
-            marking = false;
+            mark.reset();
+            mark = null;
             curIndex = 0;
         }
 
@@ -280,13 +290,13 @@ public class BsonDocumentReader extends AbstractBsonReader {
         public T next() throws NoSuchElementException {
 
             T value;
-
+            //TODO: check closed
             if (curIndex < markIterator.size() - 1) {
                 curIndex++;
                 value = markIterator.get(curIndex);
             } else {
                 value = baseIterator.next();
-                if (marking) {
+                if (mark != null) {
                     markIterator.add(value);
                 }
             }
@@ -303,32 +313,25 @@ public class BsonDocumentReader extends AbstractBsonReader {
 
         private BsonDocumentMarkableIterator<Map.Entry<String, BsonValue>> documentIterator;
         private BsonDocumentMarkableIterator<BsonValue> arrayIterator;
-        private BsonDocumentMarkableIterator activeIterator;
 
         protected Context(final Context parentContext, final BsonContextType contextType, final BsonArray array) {
             super(parentContext, contextType);
             arrayIterator = new BsonDocumentMarkableIterator<BsonValue>(array.iterator());
-            activeIterator = (BsonDocumentMarkableIterator)arrayIterator;
         }
 
         protected Context(final Context parentContext, final BsonContextType contextType, final BsonDocument document) {
             super(parentContext, contextType);
             documentIterator = new BsonDocumentMarkableIterator<Map.Entry<String, BsonValue>>(document.entrySet().iterator());
-            activeIterator = (BsonDocumentMarkableIterator)documentIterator;
-
         }
 
-        protected Context(final Context parentContext, final BsonContextType contextType) {
+        protected Context(final Context parentContext,
+                          final BsonContextType contextType,
+                          final BsonDocumentMarkableIterator<Map.Entry<String, BsonValue>> documentIterator,
+                          final BsonDocumentMarkableIterator<BsonValue> arrayIterator) {
             super(parentContext, contextType);
+            this.arrayIterator = arrayIterator;
+            this.documentIterator = documentIterator;
 
-        }
-
-        public BsonDocumentMarkableIterator<BsonValue> getArrayIterator() {
-            return arrayIterator;
-        }
-
-        public BsonDocumentMarkableIterator<Map.Entry<String, BsonValue>> getDocumentIterator() {
-            return documentIterator;
         }
 
         public Map.Entry<String, BsonValue> getNextElement() {
@@ -347,19 +350,28 @@ public class BsonDocumentReader extends AbstractBsonReader {
             }
         }
 
-        @Override
         protected void mark() {
-            activeIterator.mark();
+            if (documentIterator != null) {
+                documentIterator.mark();
+            } else {
+                arrayIterator.mark();
+            }
         }
 
-        @Override
         protected void reset() {
-            activeIterator.reset();
+            if (documentIterator != null) {
+                documentIterator.reset();
+            } else {
+                arrayIterator.reset();
+            }
         }
 
-        @Override
         protected void clearMark() {
-            activeIterator.clearMark();
+            if (documentIterator != null) {
+                documentIterator.clearMark();
+            } else {
+                arrayIterator.clearMark();
+            }
         }
     }
 
