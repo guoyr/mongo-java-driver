@@ -124,9 +124,9 @@ class DocumentCodecSpecification extends Specification {
 
         where:
         writer << [
-//                new BsonDocumentWriter(bsonDoc),
-//                new BsonBinaryWriter(new BasicOutputBuffer(), false),
-                new JsonWriter(stringWriter)
+                new BsonDocumentWriter(bsonDoc),
+                new BsonBinaryWriter(new BasicOutputBuffer(), false),
+//                new JsonWriter(stringWriter) // java-1398 needs to be fixed first
         ]
 
     }
