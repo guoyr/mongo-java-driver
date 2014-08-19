@@ -635,6 +635,7 @@ public abstract class AbstractBsonReader implements Closeable, BsonReader {
     }
 
     protected void checkPreconditions(final String methodName, final BsonType type) {
+
         if (isClosed()) {
             throw new IllegalStateException("BsonWriter is closed");
         }
@@ -677,9 +678,9 @@ public abstract class AbstractBsonReader implements Closeable, BsonReader {
         }
     }
 
-    protected static class Context {
-        private final Context parentContext;
-        private final BsonContextType contextType;
+    protected abstract class Context {
+        private Context parentContext;
+        private BsonContextType contextType;
 
         protected Context(final Context parentContext, final BsonContextType contextType) {
             this.parentContext = parentContext;
@@ -693,6 +694,20 @@ public abstract class AbstractBsonReader implements Closeable, BsonReader {
         protected BsonContextType getContextType() {
             return contextType;
         }
+
+        public void setParentContext(Context parentContext) {
+            this.parentContext = parentContext;
+        }
+
+        public void setContextType(BsonContextType contextType) {
+            this.contextType = contextType;
+        }
+
+        abstract protected void mark();
+
+        abstract protected void reset();
+
+        abstract protected void clearMark();
     }
 
     public enum State {

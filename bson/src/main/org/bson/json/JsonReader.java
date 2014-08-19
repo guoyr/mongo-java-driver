@@ -74,6 +74,21 @@ public class JsonReader extends AbstractBsonReader {
     }
 
     @Override
+    public void mark() {
+
+    }
+
+    @Override
+    public void reset() {
+
+    }
+
+    @Override
+    public void clearMark() {
+
+    }
+
+    @Override
     protected BsonBinary doReadBinaryData() {
         return (BsonBinary) currentValue;
     }
@@ -980,6 +995,30 @@ public class JsonReader extends AbstractBsonReader {
 
         protected BsonContextType getContextType() {
             return super.getContextType();
+        }
+
+        /**
+         *
+         */
+        @Override
+        protected void mark() {
+
+        }
+
+        /**
+         *
+         */
+        @Override
+        protected void reset() {
+
+        }
+
+        /**
+         *
+         */
+        @Override
+        protected void clearMark() {
+
         }
     }
 }

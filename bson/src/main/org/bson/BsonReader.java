@@ -342,4 +342,19 @@ public interface BsonReader {
      * Skips the value (reader must be positioned on a value).
      */
     void skipValue();
+
+    /**
+     * TODO
+     */
+    void mark();
+
+    /**
+     * TODO
+     */
+    void reset();
+
+    /**
+     * TODO
+     */
+    void clearMark();
 }

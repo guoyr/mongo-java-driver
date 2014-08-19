@@ -332,8 +332,22 @@ public class BsonBinaryReader extends AbstractBsonReader {
         return (Context) super.getContext();
     }
 
+    @Override
+    public void mark() {
 
-    private static class Context extends AbstractBsonReader.Context {
+    }
+
+    @Override
+    public void reset() {
+
+    }
+
+    @Override
+    public void clearMark() {
+
+    }
+
+    private class Context extends AbstractBsonReader.Context {
         private final int startPosition;
         private final int size;
 
@@ -355,6 +369,21 @@ public class BsonBinaryReader extends AbstractBsonReader {
         @Override
         protected Context getParentContext() {
             return (Context) super.getParentContext();
+        }
+
+        @Override
+        protected void mark() {
+
+        }
+
+        @Override
+        protected void reset() {
+
+        }
+
+        @Override
+        protected void clearMark() {
+
         }
     }
 }
