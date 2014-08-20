@@ -386,5 +386,15 @@ public class BsonBinaryReader extends AbstractBsonReader {
         protected Context getParentContext() {
             return (Context) super.getParentContext();
         }
+
+        @Override
+        protected void reset() {
+
+        }
+
+        @Override
+        protected void mark() {
+
+        }
     }
 }

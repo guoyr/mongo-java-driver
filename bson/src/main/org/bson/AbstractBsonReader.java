@@ -717,6 +717,10 @@ public abstract class AbstractBsonReader implements Closeable, BsonReader {
         protected BsonContextType getContextType() {
             return contextType;
         }
+
+        abstract protected void mark();
+
+        abstract protected void reset();
     }
 
     public enum State {

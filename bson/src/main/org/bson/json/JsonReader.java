@@ -1005,6 +1005,16 @@ public class JsonReader extends AbstractBsonReader {
             super(parentContext, contextType);
         }
 
+        @Override
+        protected void reset() {
+
+        }
+
+        @Override
+        protected void mark() {
+
+        }
+
         protected Context getParentContext() {
             return (Context) super.getParentContext();
         }
@@ -1012,6 +1022,8 @@ public class JsonReader extends AbstractBsonReader {
         protected BsonContextType getContextType() {
             return super.getContextType();
         }
+
+
 
     }
 }

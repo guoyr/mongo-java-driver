@@ -35,6 +35,7 @@ import org.bson.codecs.EncoderContext
 import org.bson.io.BasicInputBuffer
 import org.bson.io.BasicOutputBuffer
 import org.bson.json.JsonReader
+import org.bson.json.JsonWriter
 import org.bson.types.Binary
 import org.bson.types.Code
 import org.bson.types.MaxKey
@@ -61,15 +62,11 @@ class LimitedLookaheadMarkSpecification extends Specification {
 
     def setupSpec() {
         doc = new Document()
+
         doc.with {
             put('int64', 52L)
-            put('null', null)
-            put('date', new Date())
-            put('regex', new BsonRegularExpression('^test.*regex.*xyz$', 'i'))
-            put('string', 'the fox ...')
-            put('symbol', new Symbol('ruby stuff'))
             put('undefined', new BsonUndefined())
-            put('array', asList(1, 1L, true, [1, 2, 3], new Document('a', 1), null))
+            put('array', asList(1, 1L, [1, 2], new Document('a', 1), null))
             put('document', new Document('a', 2))
         }
     }
@@ -93,33 +90,72 @@ class LimitedLookaheadMarkSpecification extends Specification {
         }
 
         then:
-        reader.with {
-            readStartDocument()
-            mark()
-            readName()
-            readInt64()
-            readName()
-            readNull()
-            readName()
-            readDateTime()
-            readName()
-            readRegularExpression()
-            readName()
-            readString()
-            readName()
-            readSymbol()
-            readName()
-            readUndefined()
-            readName()
-            readStartArray()
-            reset()
-            readName()
-            readInt64()
-        }
+
+        reader.readStartDocument()
+        // mark beginning of document
+        reader.mark()
+        reader.readName()
+        reader.readInt64()
+        // reset to beginning of document
+        reader.reset()
+        // start marking again
+        reader.mark()
+        reader.readName()
+        reader.readInt64()
+        reader.readName()
+        reader.readUndefined()
+        reader.readName()
+        reader.readStartArray()
+        reader.readInt32()
+        reader.readInt64()
+        reader.readStartArray()
+        reader.readInt32()
+        reader.readInt32()
+        reader.readEndArray()
+        reader.readStartDocument()
+        reader.readName()
+        reader.readInt32()
+        reader.readEndDocument()
+        reader.readNull()
+        reader.readEndArray()
+        reader.readName()
+        reader.readStartDocument()
+        reader.readName()
+        reader.readInt32()
+        reader.readEndDocument()
+        reader.readEndDocument()
+        // read entire document, reset to beginning
+        reader.reset()
+        reader.readName()
+        reader.readInt64()
+        reader.readName()
+        reader.readUndefined()
+        reader.readName()
+        reader.readStartArray()
+        reader.readInt32()
+        reader.readInt64()
+        reader.readStartArray()
+        // reset in subdocument
+        reader.reset()
+        reader.readName()
+        reader.readInt64()
+        reader.readName()
+        reader.readUndefined()
+        reader.readName()
+        reader.readStartArray()
+        reader.readInt32()
+        reader.readInt64()
+        reader.readStartArray()
+        // mark in subdocument
+        reader.mark()
+
+
 
         where:
         writer << [
-            new BsonBinaryWriter(new BasicOutputBuffer(), false)
+            new BsonDocumentWriter(bsonDoc),
+            new BsonBinaryWriter(new BasicOutputBuffer(), false),
+//            new JsonWriter(stringWriter)
         ]
     }
 }
