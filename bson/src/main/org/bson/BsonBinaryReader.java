@@ -343,11 +343,6 @@ public class BsonBinaryReader extends AbstractBsonReader {
         mark.reset();
     }
 
-    @Override
-    public void clearMark() {
-        mark = null;
-    }
-
     protected class Mark extends AbstractBsonReader.Mark {
         private int startPosition;
         private int size;

@@ -353,8 +353,4 @@ public interface BsonReader {
      */
     void reset();
 
-    /**
-     * TODO
-     */
-    void clearMark();
 }

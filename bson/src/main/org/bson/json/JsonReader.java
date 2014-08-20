@@ -976,11 +976,6 @@ public class JsonReader extends AbstractBsonReader {
     }
 
     @Override
-    public void clearMark() {
-        mark = null;
-    }
-
-    @Override
     protected Context getContext() {
         return (Context) super.getContext();
     }

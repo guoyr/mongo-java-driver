@@ -33,6 +33,7 @@ import org.bson.BsonWriter
 import org.bson.ByteBufNIO
 import org.bson.codecs.EncoderContext
 import org.bson.io.BasicInputBuffer
+import org.bson.io.BasicOutputBuffer
 import org.bson.json.JsonReader
 import org.bson.types.Binary
 import org.bson.types.Code
@@ -91,20 +92,34 @@ class LimitedLookaheadMarkSpecification extends Specification {
             reader = new JsonReader(stringWriter.toString())
         }
 
-        reader.readStartDocument()
-        reader.mark()
-        reader.readName()
-        reader.readInt64()
-        reader.readName()
-        reader.readNull()
-        reader.readDateTime()
-
         then:
-        1
+        reader.with {
+            readStartDocument()
+            mark()
+            readName()
+            readInt64()
+            readName()
+            readNull()
+            readName()
+            readDateTime()
+            readName()
+            readRegularExpression()
+            readName()
+            readString()
+            readName()
+            readSymbol()
+            readName()
+            readUndefined()
+            readName()
+            readStartArray()
+            reset()
+            readName()
+            readInt64()
+        }
 
         where:
         writer << [
-            new BsonDocumentWriter(bsonDoc)
+            new BsonBinaryWriter(new BasicOutputBuffer(), false)
         ]
     }
 }

@@ -4,6 +4,7 @@ import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -18,6 +19,9 @@ import java.util.NoSuchElementException;
  */
 public class BsonDocumentReader extends AbstractBsonReader {
     private BsonValue currentValue;
+    private Mark mark;
+    private int curIndex = -1;
+    private int markStartIndex = -1;
 
     /**
      * Construct a new instance.
@@ -204,17 +208,27 @@ public class BsonDocumentReader extends AbstractBsonReader {
 
     @Override
     public void mark() {
-        getContext().mark();
+        mark = new Mark();
+        if (mark.documentIterator != null) {
+            if (curIndex >= markStartIndex && curIndex < markStartIndex + mark.documentIterator.markIterator.size()) {
+                // information already stored in markIterator
+                mark.documentIterator.markIterator = mark.documentIterator.markIterator.subList(curIndex, mark.documentIterator.markIterator.size());
+                markStartIndex = curIndex;
+            } else {
+                markStartIndex = curIndex;
+            }
+        } else {
+            mark.arrayIterator.mark();
+        }
     }
 
     @Override
     public void reset() {
-        getContext().reset();
-    }
-
-    @Override
-    public void clearMark() {
-        getContext().clearMark();
+        if (mark.documentIterator != null) {
+            mark.documentIterator.reset();
+        } else {
+            mark.arrayIterator.reset();
+        }
     }
 
     @Override
@@ -241,17 +255,19 @@ public class BsonDocumentReader extends AbstractBsonReader {
                     contextType,
                     documentIterator,
                     arrayIterator));
+
         }
     }
 
     private class BsonDocumentMarkableIterator<T> implements Iterator<T> {
 
         private Iterator<T> baseIterator;
-        private ArrayList<T> markIterator = new ArrayList<T>();
-        private int curIndex;
+        private List<T> markIterator = new ArrayList<T>();
+        private int curIndex = Integer.MAX_VALUE; // position of the cursor
+        private int markBeginningIndex = Integer.MAX_VALUE; // index of the beginning of the mark
         private Mark mark;
 
-        public BsonDocumentMarkableIterator(Iterator<T> baseIterator) {
+        protected BsonDocumentMarkableIterator(Iterator<T> baseIterator) {
             this.baseIterator = baseIterator;
         }
 
@@ -259,8 +275,11 @@ public class BsonDocumentReader extends AbstractBsonReader {
          *
          */
         protected void mark() {
+            if (mark != null) {
+                throw new BSONException("a mark already exists, must be cleared before creating a new one");
+            }
             mark = new Mark();
-            curIndex = Integer.MAX_VALUE;
+
         }
 
         /**
@@ -272,14 +291,6 @@ public class BsonDocumentReader extends AbstractBsonReader {
             curIndex = 0;
         }
 
-        /**
-         *
-         */
-        protected void clearMark() {
-            markIterator.clear();
-            curIndex = Integer.MAX_VALUE;
-            reset();
-        }
 
         @Override
         public boolean hasNext() {
@@ -351,26 +362,16 @@ public class BsonDocumentReader extends AbstractBsonReader {
         }
 
         protected void mark() {
-            if (documentIterator != null) {
-                documentIterator.mark();
-            } else {
-                arrayIterator.mark();
-            }
+
         }
 
         protected void reset() {
-            if (documentIterator != null) {
-                documentIterator.reset();
-            } else {
-                arrayIterator.reset();
-            }
+
         }
 
         protected void clearMark() {
             if (documentIterator != null) {
-                documentIterator.clearMark();
             } else {
-                arrayIterator.clearMark();
             }
         }
     }
