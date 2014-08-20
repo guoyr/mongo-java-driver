@@ -39,7 +39,7 @@ public class BasicInputBuffer implements InputBuffer {
     }
 
     @Override
-    public void setPosition(int newPosition) {
+    public void setPosition(final int newPosition) {
         buffer.position(newPosition);
     }
 

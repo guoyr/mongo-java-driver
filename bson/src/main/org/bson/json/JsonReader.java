@@ -16,7 +16,6 @@
 
 package org.bson.json;
 
-
 import org.bson.AbstractBsonReader;
 import org.bson.BsonBinary;
 import org.bson.BsonBinarySubType;
@@ -66,7 +65,7 @@ public class JsonReader extends AbstractBsonReader {
     /**
      * Constructs a new instance with the given JSON string.
      *
-     * @param json     A string representation of a JSON.
+     * @param json A string representation of a JSON.
      */
     public JsonReader(final String json) {
         super();
@@ -196,13 +195,13 @@ public class JsonReader extends AbstractBsonReader {
                     setCurrentBsonType(BsonType.DB_POINTER);
                     currentValue = visitDBPointerConstructor();
                 } else if ("UUID".equals(value)
-                           || "GUID".equals(value)
-                           || "CSUUID".equals(value)
-                           || "CSGUID".equals(value)
-                           || "JUUID".equals(value)
-                           || "JGUID".equals(value)
-                           || "PYUUID".equals(value)
-                           || "PYGUID".equals(value)) {
+                        || "GUID".equals(value)
+                        || "CSUUID".equals(value)
+                        || "CSGUID".equals(value)
+                        || "JUUID".equals(value)
+                        || "JGUID".equals(value)
+                        || "PYUUID".equals(value)
+                        || "PYGUID".equals(value)) {
                     setCurrentBsonType(BsonType.BINARY);
                     currentValue = visitUUIDConstructor(value);
                 } else if ("new".equals(value)) {
@@ -531,13 +530,13 @@ public class JsonReader extends AbstractBsonReader {
             currentValue = visitDBPointerConstructor();
             setCurrentBsonType(BsonType.DB_POINTER);
         } else if ("UUID".equals(value)
-                   || "GUID".equals(value)
-                   || "CSUUID".equals(value)
-                   || "CSGUID".equals(value)
-                   || "JUUID".equals(value)
-                   || "JGUID".equals(value)
-                   || "PYUUID".equals(value)
-                   || "PYGUID".equals(value)) {
+                || "GUID".equals(value)
+                || "CSUUID".equals(value)
+                || "CSGUID".equals(value)
+                || "JUUID".equals(value)
+                || "JGUID".equals(value)
+                || "PYUUID".equals(value)
+                || "PYGUID".equals(value)) {
             currentValue = visitUUIDConstructor(value);
             setCurrentBsonType(BsonType.BINARY);
         } else {
@@ -949,7 +948,7 @@ public class JsonReader extends AbstractBsonReader {
         JsonToken nameToken = popToken();
         if (!nameToken.getValue(String.class).equals("true")) {
             throw new JsonParseException("JSON reader requires $undefined to have the value of true but found '%s'.",
-                                         nameToken.getValue());
+                    nameToken.getValue());
         }
         verifyToken("}");
         return new BsonUndefined();
@@ -1000,19 +999,12 @@ public class JsonReader extends AbstractBsonReader {
         }
     }
 
+
+
     protected class Context extends AbstractBsonReader.Context {
+
         protected Context(final AbstractBsonReader.Context parentContext, final BsonContextType contextType) {
             super(parentContext, contextType);
-        }
-
-        @Override
-        protected void reset() {
-
-        }
-
-        @Override
-        protected void mark() {
-
         }
 
         protected Context getParentContext() {

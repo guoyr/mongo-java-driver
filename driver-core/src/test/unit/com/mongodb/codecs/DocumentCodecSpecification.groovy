@@ -92,7 +92,6 @@ class DocumentCodecSpecification extends Specification {
             reader = new BsonBinaryReader(new BasicInputBuffer(new ByteBufNIO(
                     ByteBuffer.wrap(writer.buffer.toByteArray()))), true)
         } else {
-            println(stringWriter.toString())
             reader = new JsonReader(stringWriter.toString())
         }
 

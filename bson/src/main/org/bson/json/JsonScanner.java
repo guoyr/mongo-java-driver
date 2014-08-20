@@ -30,7 +30,7 @@ class JsonScanner {
     /**
      * @param newPosition the new position of the cursor position in the buffer
      */
-    public void setBufferPosition(int newPosition) {
+    public void setBufferPosition(final int newPosition) {
         buffer.setPosition(newPosition);
     }
 

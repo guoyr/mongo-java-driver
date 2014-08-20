@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * A {@code BsonReader} implementation that reads from an instance of {@code BsonDocument}.  This can be used to decode a {@code
@@ -243,23 +242,24 @@ public class BsonDocumentReader extends AbstractBsonReader {
         }
     }
 
-    private class BsonDocumentMarkableIterator<T> implements Iterator<T> {
+    private static class BsonDocumentMarkableIterator<T> implements Iterator<T> {
 
         private Iterator<T> baseIterator;
         private List<T> markIterator = new ArrayList<T>();
-        private int curIndex;
+        private int curIndex; // index of the cursor
+        private boolean marking;
 
-        protected BsonDocumentMarkableIterator(Iterator<T> baseIterator) {
+        protected BsonDocumentMarkableIterator(final Iterator<T> baseIterator) {
             this.baseIterator = baseIterator;
-            curIndex = Integer.MAX_VALUE;
+            curIndex = 0;
+            marking = false;
         }
 
         /**
          *
          */
         protected void mark() {
-            curIndex = Integer.MAX_VALUE; // index larger than length of markIterator
-            markIterator.clear();
+            marking = true;
         }
 
         /**
@@ -267,28 +267,35 @@ public class BsonDocumentReader extends AbstractBsonReader {
          */
         protected void reset() {
             curIndex = 0;
+            marking = false;
         }
 
 
         @Override
         public boolean hasNext() {
-            return baseIterator.hasNext() || curIndex < markIterator.size() - 1;
+            return baseIterator.hasNext() || curIndex < markIterator.size();
         }
 
         @Override
-        public T next() throws NoSuchElementException {
-
+        public T next() {
             T value;
             //TODO: check closed
-            if (curIndex < markIterator.size() - 1) {
+            if (curIndex < markIterator.size()) {
                 value = markIterator.get(curIndex);
-                curIndex++;
+                if (marking) {
+                    curIndex++;
+                } else {
+                    markIterator.remove(0);
+                }
             } else {
                 value = baseIterator.next();
-                if (mark != null) {
+                if (marking) {
                     markIterator.add(value);
+                    curIndex++;
                 }
             }
+
+
             return value;
         }
 
@@ -337,7 +344,7 @@ public class BsonDocumentReader extends AbstractBsonReader {
             }
 
             if (getParentContext() != null) {
-                getParentContext().mark();
+                ((Context) getParentContext()).mark();
             }
         }
 
@@ -349,7 +356,7 @@ public class BsonDocumentReader extends AbstractBsonReader {
             }
 
             if (getParentContext() != null) {
-                getParentContext().reset();
+                ((Context) getParentContext()).reset();
             }
         }
     }

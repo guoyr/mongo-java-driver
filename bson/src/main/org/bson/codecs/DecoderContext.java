@@ -60,7 +60,7 @@ public final class DecoderContext {
          * @since 3.0
          * @see org.bson.UuidRepresentation
          */
-        public Builder uuidRepresentation(UuidRepresentation uuidRepresentation) {
+        public Builder uuidRepresentation(final UuidRepresentation uuidRepresentation) {
             if (uuidRepresentation == null) {
                 throw new IllegalArgumentException("uuidRepresentation" + " can not be null");
             }
@@ -77,7 +77,7 @@ public final class DecoderContext {
         }
     }
 
-    private DecoderContext(UuidRepresentation uuidRepresentation) {
+    private DecoderContext(final UuidRepresentation uuidRepresentation) {
         this.uuidRepresentation = uuidRepresentation;
     }
 }

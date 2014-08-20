@@ -679,11 +679,51 @@ public abstract class AbstractBsonReader implements Closeable, BsonReader {
     }
 
     protected class Mark {
-        protected State state;
-        protected Context parentContext;
-        protected BsonContextType contextType;
-        protected BsonType currentBsonType;
-        protected String currentName;
+        private State state;
+        private Context parentContext;
+        private BsonContextType contextType;
+        private BsonType currentBsonType;
+        private String currentName;
+
+        protected State getState() {
+            return state;
+        }
+
+        protected void setState(final State state) {
+            this.state = state;
+        }
+
+        protected Context getParentContext() {
+            return parentContext;
+        }
+
+        protected void setParentContext(final Context parentContext) {
+            this.parentContext = parentContext;
+        }
+
+        protected BsonContextType getContextType() {
+            return contextType;
+        }
+
+        protected void setContextType(final BsonContextType contextType) {
+            this.contextType = contextType;
+        }
+
+        protected BsonType getCurrentBsonType() {
+            return currentBsonType;
+        }
+
+        protected void setCurrentBsonType(final BsonType currentBsonType) {
+            this.currentBsonType = currentBsonType;
+        }
+
+        protected String getCurrentName() {
+            return currentName;
+        }
+
+        protected void setCurrentName(final String currentName) {
+            this.currentName = currentName;
+        }
 
         protected Mark() {
             state = AbstractBsonReader.this.state;
@@ -717,10 +757,6 @@ public abstract class AbstractBsonReader implements Closeable, BsonReader {
         protected BsonContextType getContextType() {
             return contextType;
         }
-
-        abstract protected void mark();
-
-        abstract protected void reset();
     }
 
     public enum State {

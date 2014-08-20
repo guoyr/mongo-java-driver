@@ -77,7 +77,7 @@ public final class EncoderContext {
          * @since 3.0
          * @see org.bson.UuidRepresentation
          */
-        public Builder uuidRepresentation(UuidRepresentation uuidRepresentation) {
+        public Builder uuidRepresentation(final UuidRepresentation uuidRepresentation) {
             this.uuidRepresentation = uuidRepresentation;
             return this;
         }

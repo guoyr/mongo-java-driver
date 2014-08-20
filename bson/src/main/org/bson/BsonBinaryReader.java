@@ -358,7 +358,7 @@ public class BsonBinaryReader extends AbstractBsonReader {
         protected void reset() {
             super.reset();
             BsonBinaryReader.this.buffer.setPosition(currentPosition);
-            BsonBinaryReader.this.setContext(new Context((Context) parentContext, contextType, startPosition, size));
+            BsonBinaryReader.this.setContext(new Context((Context) getParentContext(), getContextType(), startPosition, size));
         }
     }
 
@@ -385,16 +385,6 @@ public class BsonBinaryReader extends AbstractBsonReader {
         @Override
         protected Context getParentContext() {
             return (Context) super.getParentContext();
-        }
-
-        @Override
-        protected void reset() {
-
-        }
-
-        @Override
-        protected void mark() {
-
         }
     }
 }
