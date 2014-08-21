@@ -33,6 +33,16 @@ public class UUIDCodecProvider implements CodecProvider {
     private UuidRepresentation encoderRepresentation;
     private UuidRepresentation decoderRepresentation;
 
+    /**
+     * Set the UUIDRepresentation to be used in the codec
+     * default is JAVA_LEGACY to be compatible with existing documents
+     *
+     * @param encoderRepresentation the representation of UUID for encoding
+     * @param decoderRepresentation the representation of the UUID for decoding
+     *
+     * @since 3.0
+     * @see org.bson.UuidRepresentation
+     */
     public UUIDCodecProvider(final UuidRepresentation encoderRepresentation, final UuidRepresentation decoderRepresentation) {
         this.encoderRepresentation = encoderRepresentation;
         this.decoderRepresentation = decoderRepresentation;

@@ -41,8 +41,7 @@ public class UUIDCodec implements Codec<UUID> {
     private UuidRepresentation decoderUuidRepresentation = UuidRepresentation.JAVA_LEGACY;
 
     /**
-     * The UUIDRepresentation
-     * default is JAVA_LEGACY to be compatible with existing documents
+     * The default UUIDRepresentation is JAVA_LEGACY to be compatible with existing documents
      *
      * @param encoderUuidRepresentation the representation of UUID for encoding
      * @param decoderUuidRepresentation the representation of the UUID for decoding
