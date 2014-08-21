@@ -366,7 +366,6 @@ public class BsonBinaryReader extends AbstractBsonReader {
         private final int startPosition;
         private final int size;
 
-
         Context(final Context parentContext, final BsonContextType contextType, final int startPosition, final int size) {
             super(parentContext, contextType);
             this.startPosition = startPosition;

@@ -206,7 +206,6 @@ public class BsonDocumentReader extends AbstractBsonReader {
     @Override
     public void mark() {
         mark = new Mark();
-        getContext().mark();
     }
 
     @Override
@@ -215,7 +214,6 @@ public class BsonDocumentReader extends AbstractBsonReader {
             throw new BSONException("trying to reset a mark before creating it");
         }
         mark.reset();
-        getContext().reset();
         mark = null;
     }
 
@@ -232,13 +230,14 @@ public class BsonDocumentReader extends AbstractBsonReader {
             super();
             currentValue = BsonDocumentReader.this.currentValue;
             context = BsonDocumentReader.this.getContext();
+            context.mark();
         }
 
         protected void reset() {
             super.reset();
             BsonDocumentReader.this.currentValue = currentValue;
             BsonDocumentReader.this.setContext(context);
-
+            context.reset();
         }
     }
 

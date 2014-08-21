@@ -344,12 +344,16 @@ public interface BsonReader {
     void skipValue();
 
     /**
-     * TODO
+     * Creates a bookmark in the BsonReader's input
+     *
+     * If more than one mark is created, the last one overrides the previous ones
      */
     void mark();
 
     /**
-     * TODO
+     * Go back to the state at the last mark and removes the mark
+     *
+     * @throws org.bson.BSONException if no mark has been set
      */
     void reset();
 

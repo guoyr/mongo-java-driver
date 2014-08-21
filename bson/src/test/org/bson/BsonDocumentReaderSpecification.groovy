@@ -94,4 +94,6 @@ class BsonDocumentReaderSpecification extends Specification {
         then:
         thrown(BsonInvalidOperationException)
     }
+
+
 }

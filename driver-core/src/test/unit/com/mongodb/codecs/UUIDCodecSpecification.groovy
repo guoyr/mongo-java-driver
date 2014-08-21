@@ -44,12 +44,13 @@ class UUIDCodecSpecification extends Specification {
         outputBuffer = new BasicOutputBuffer();
     }
 
-    def 'should decode different types of UUID'(byte[] list, DecoderContext.Builder builder) throws IOException {
+    def 'should decode different types of UUID'(DecoderContext.Builder builder, byte[] list) throws IOException {
 
         given:
+
         BasicInputBuffer inputBuffer = new BasicInputBuffer(new ByteBufNIO(ByteBuffer.wrap(list)))
         BsonBinaryReader bsonReader = new BsonBinaryReader(inputBuffer, false)
-        UUID expectedUuid = new UUID(2L, 1L)
+        UUID expectedUuid = UUID.fromString('08070605-0403-0201-100f-0e0d0c0b0a09')
 
         bsonReader.readStartDocument()
         bsonReader.readName()
@@ -64,39 +65,7 @@ class UUIDCodecSpecification extends Specification {
         bsonReader.close()
 
         where:
-        list << [
-                [0, 0, 0, 0,       //Start of document
-                 5,                // type (BINARY)
-                 95, 105, 100, 0,  // "_id"
-                 16, 0, 0, 0,      // int "16" (length)
-                 3,                // type (B_UUID_LEGACY) JAVA_LEGACY
-                 2, 0, 0, 0, 0, 0, 0, 0,
-                 1, 0, 0, 0, 0, 0, 0, 0], //8 bytes for long, 2 longs for UUID, Little Endian
 
-                [0, 0, 0, 0,       //Start of document
-                 5,                // type (BINARY)
-                 95, 105, 100, 0,  // "_id"
-                 16, 0, 0, 0,      // int "16" (length)
-                 4,                // type (UUID)
-                 0, 0, 0, 0, 0, 0, 0, 2,
-                 0, 0, 0, 0, 0, 0, 0, 1], //8 bytes for long, 2 longs for UUID, Big Endian
-
-                [0, 0, 0, 0,       //Start of document
-                 5,                // type (BINARY)
-                 95, 105, 100, 0,  // "_id"
-                 16, 0, 0, 0,      // int "16" (length)
-                 3,                // type (B_UUID_LEGACY) PYTHON_LEGACY
-                 0, 0, 0, 0, 0, 0, 0, 2,
-                 0, 0, 0, 0, 0, 0, 0, 1], //8 bytes for long, 2 longs for UUID, Big Endian
-
-                [0, 0, 0, 0,       //Start of document
-                 5,                // type (BINARY)
-                 95, 105, 100, 0,  // "_id"
-                 16, 0, 0, 0,      // int "16" (length)
-                 3,                // type (B_UUID_LEGACY) CSHARP_LEGACY
-                 0, 0, 0, 0, 0, 0, 2, 0,
-                 0, 0, 0, 0, 0, 0, 0, 1], //8 bytes for long, 2 longs for UUID, Big Endian
-        ]
         builder << [
                 DecoderContext.builder().uuidRepresentation(UuidRepresentation.JAVA_LEGACY),
                 DecoderContext.builder().uuidRepresentation(UuidRepresentation.STANDARD),
@@ -104,12 +73,57 @@ class UUIDCodecSpecification extends Specification {
                 DecoderContext.builder().uuidRepresentation(UuidRepresentation.C_SHARP_LEGACY),
         ]
 
+        list << [
+                [0, 0, 0, 0,       //Start of document
+                 5,                // type (BINARY)
+                 95, 105, 100, 0,  // "_id"
+                 16, 0, 0, 0,      // int "16" (length)
+                 3,                // type (B_UUID_LEGACY) JAVA_LEGACY
+                 1, 2, 3, 4, 5, 6, 7, 8,
+                 9, 10, 11, 12, 13, 14, 15, 16], //8 bytes for long, 2 longs for UUID, Little Endian
+
+                [0, 0, 0, 0,       //Start of document
+                 5,                // type (BINARY)
+                 95, 105, 100, 0,  // "_id"
+                 16, 0, 0, 0,      // int "16" (length)
+                 4,                // type (UUID)
+                 8, 7, 6, 5, 4, 3, 2, 1,
+                 16, 15, 14, 13, 12, 11, 10, 9], //8 bytes for long, 2 longs for UUID, Big Endian
+
+                [0, 0, 0, 0,       //Start of document
+                 5,                // type (BINARY)
+                 95, 105, 100, 0,  // "_id"
+                 16, 0, 0, 0,      // int "16" (length)
+                 3,                // type (B_UUID_LEGACY) PYTHON_LEGACY
+                 8, 7, 6, 5, 4, 3, 2, 1,
+                 16, 15, 14, 13, 12, 11, 10, 9], //8 bytes for long, 2 longs for UUID, Big Endian
+
+                [0, 0, 0, 0,       //Start of document
+                 5,                // type (BINARY)
+                 95, 105, 100, 0,  // "_id"
+                 16, 0, 0, 0,      // int "16" (length)
+                 3,                // type (B_UUID_LEGACY) CSHARP_LEGACY
+                 5, 6, 7, 8, 3, 4, 1, 2,
+                 16, 15, 14, 13, 12, 11, 10, 9], //8 bytes for long, 2 longs for UUID, Big Endian
+        ]
+
     }
 
-    def 'should encode different types of UUIDs'(byte[] expectedList,
+    def 'should encode different types of UUIDs'(Byte bsonSubType,
                                                  EncoderContext.Builder builder,
                                                  UUID uuid) throws IOException {
         given:
+
+        byte[] encodedDoc = [0, 0, 0, 0,       //Start of document
+                             5,                // type (BINARY)
+                             95, 105, 100, 0,  // "_id"
+                             16, 0, 0, 0,      // int "16" (length)
+                             0,                // bsonSubType
+                             1, 2, 3, 4, 5, 6, 7, 8,
+                             9, 10, 11, 12, 13, 14, 15, 16] //8 bytes for long, 2 longs for UUID
+
+        encodedDoc[13] = bsonSubType
+
         BsonBinaryWriter bsonWriter = new BsonBinaryWriter(outputBuffer, false)
         bsonWriter.writeStartDocument()
         bsonWriter.writeName('_id')
@@ -118,45 +132,14 @@ class UUIDCodecSpecification extends Specification {
         uuidCodec.encode(bsonWriter, uuid, builder.build())
 
         then:
-        outputBuffer.toByteArray() == expectedList
+        outputBuffer.toByteArray() == encodedDoc
 
         cleanup:
         bsonWriter.close()
 
         where:
-        expectedList << [
-                [0, 0, 0, 0,       //Start of document
-                 5,                // type (BINARY)
-                 95, 105, 100, 0,  // "_id"
-                 16, 0, 0, 0,      // int "16" (length)
-                 3,                // type (B_UUID_LEGACY) JAVA_LEGACY
-                 2, 0, 0, 0, 0, 0, 0, 0,
-                 1, 0, 0, 0, 0, 0, 0, 0], //8 bytes for long, 2 longs for UUID, Little Endian
 
-                [0, 0, 0, 0,       //Start of document
-                 5,                // type (BINARY)
-                 95, 105, 100, 0,  // "_id"
-                 16, 0, 0, 0,      // int "16" (length)
-                 4,                // type (UUID)
-                 0, 0, 0, 0, 0, 0, 0, 2,
-                 0, 0, 0, 0, 0, 0, 0, 1], //8 bytes for long, 2 longs for UUID, Big Endian
-
-                [0, 0, 0, 0,       //Start of document
-                 5,                // type (BINARY)
-                 95, 105, 100, 0,  // "_id"
-                 16, 0, 0, 0,      // int "16" (length)
-                 3,                // type (B_UUID_LEGACY) PYTHON_LEGACY
-                 0, 0, 0, 0, 0, 0, 0, 2,
-                 0, 0, 0, 0, 0, 0, 0, 1], //8 bytes for long, 2 longs for UUID, Big Endian
-
-                [0, 0, 0, 0,       //Start of document
-                 5,                // type (BINARY)
-                 95, 105, 100, 0,  // "_id"
-                 16, 0, 0, 0,      // int "16" (length)
-                 3,                // type (B_UUID_LEGACY) CSHARP_LEGACY
-                 0, 0, 0, 0, 0, 0, 2, 0,
-                 0, 0, 0, 0, 0, 0, 0, 1], //8 bytes for long, 2 longs for UUID, Big Endian
-        ]
+        bsonSubType << [3, 4, 3, 3]
 
         builder << [
                 EncoderContext.builder().uuidRepresentation(UuidRepresentation.JAVA_LEGACY),
@@ -166,11 +149,10 @@ class UUIDCodecSpecification extends Specification {
         ]
 
         uuid << [
-                new UUID(2L, 1L), // Java legacy UUID
-                new UUID(2L, 1L), // simulated standard UUID
-                new UUID(2L, 1L), // simulated Python UUID
-                new UUID(2L, 1L) // simulated C# UUID
+                UUID.fromString('08070605-0403-0201-100f-0e0d0c0b0a09'), // Java legacy UUID
+                UUID.fromString('01020304-0506-0708-090a-0b0c0d0e0f10'), // simulated standard UUID
+                UUID.fromString('01020304-0506-0708-090a-0b0c0d0e0f10'), // simulated Python UUID
+                UUID.fromString('04030201-0605-0807-090a-0b0c0d0e0f10') // simulated C# UUID
         ]
-
     }
 }
