@@ -69,6 +69,11 @@ public class DBObjectCodecTest extends DatabaseTestCase {
     }
 
     @Test
+    public void testUUIDDecoding() {
+
+    }
+
+    @Test
     public void testDBListEncoding() {
         BasicDBList list = new BasicDBList();
         list.add(new BasicDBObject("a", 1).append("b", true));
