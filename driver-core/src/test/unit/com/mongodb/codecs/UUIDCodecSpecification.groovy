@@ -22,8 +22,10 @@ import org.bson.BsonBinaryReader
 import org.bson.BsonBinaryWriter
 import org.bson.ByteBufNIO
 import org.bson.UuidRepresentation
+import org.bson.codecs.Codec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
+import org.bson.codecs.configuration.RootCodecRegistry
 import org.bson.io.BasicInputBuffer
 import org.bson.io.BasicOutputBuffer
 import spock.lang.Shared
@@ -36,15 +38,13 @@ import java.nio.ByteBuffer
  */
 class UUIDCodecSpecification extends Specification {
 
-    @Shared private UUIDCodec uuidCodec;
     @Shared private BasicOutputBuffer outputBuffer;
 
     def setup() {
-        uuidCodec = new UUIDCodec();
         outputBuffer = new BasicOutputBuffer();
     }
 
-    def 'should decode different types of UUID'(DecoderContext.Builder builder, byte[] list) throws IOException {
+    def 'should decode different types of UUID'(UUIDCodec codec, byte[] list) throws IOException {
 
         given:
 
@@ -56,7 +56,7 @@ class UUIDCodecSpecification extends Specification {
         bsonReader.readName()
 
         when:
-        UUID actualUuid = uuidCodec.decode(bsonReader, builder.build())
+        UUID actualUuid = codec.decode(bsonReader, DecoderContext.builder().build())
 
         then:
         expectedUuid == actualUuid
@@ -66,11 +66,11 @@ class UUIDCodecSpecification extends Specification {
 
         where:
 
-        builder << [
-                DecoderContext.builder().uuidRepresentation(UuidRepresentation.JAVA_LEGACY),
-                DecoderContext.builder().uuidRepresentation(UuidRepresentation.STANDARD),
-                DecoderContext.builder().uuidRepresentation(UuidRepresentation.PYTHON_LEGACY),
-                DecoderContext.builder().uuidRepresentation(UuidRepresentation.C_SHARP_LEGACY),
+        codec << [
+                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.JAVA_LEGACY),
+                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.STANDARD),
+                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.PYTHON_LEGACY),
+                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.C_SHARP_LEGACY),
         ]
 
         list << [
@@ -110,7 +110,7 @@ class UUIDCodecSpecification extends Specification {
     }
 
     def 'should encode different types of UUIDs'(Byte bsonSubType,
-                                                 EncoderContext.Builder builder,
+                                                 UUIDCodec codec,
                                                  UUID uuid) throws IOException {
         given:
 
@@ -129,7 +129,7 @@ class UUIDCodecSpecification extends Specification {
         bsonWriter.writeName('_id')
 
         when:
-        uuidCodec.encode(bsonWriter, uuid, builder.build())
+        codec.encode(bsonWriter, uuid, EncoderContext.builder().build())
 
         then:
         outputBuffer.toByteArray() == encodedDoc
@@ -141,11 +141,11 @@ class UUIDCodecSpecification extends Specification {
 
         bsonSubType << [3, 4, 3, 3]
 
-        builder << [
-                EncoderContext.builder().uuidRepresentation(UuidRepresentation.JAVA_LEGACY),
-                EncoderContext.builder().uuidRepresentation(UuidRepresentation.STANDARD),
-                EncoderContext.builder().uuidRepresentation(UuidRepresentation.PYTHON_LEGACY),
-                EncoderContext.builder().uuidRepresentation(UuidRepresentation.C_SHARP_LEGACY),
+        codec << [
+                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.JAVA_LEGACY),
+                new UUIDCodec(UuidRepresentation.STANDARD, UuidRepresentation.JAVA_LEGACY),
+                new UUIDCodec(UuidRepresentation.PYTHON_LEGACY, UuidRepresentation.JAVA_LEGACY),
+                new UUIDCodec(UuidRepresentation.C_SHARP_LEGACY, UuidRepresentation.JAVA_LEGACY),
         ]
 
         uuid << [
@@ -154,5 +154,33 @@ class UUIDCodecSpecification extends Specification {
                 UUID.fromString('01020304-0506-0708-090a-0b0c0d0e0f10'), // simulated Python UUID
                 UUID.fromString('04030201-0605-0807-090a-0b0c0d0e0f10') // simulated C# UUID
         ]
+    }
+
+    def 'should get the codec with the correct representation from the registry'() {
+        given:
+        RootCodecRegistry registry = new RootCodecRegistry(
+                [new UUIDCodecProvider(UuidRepresentation.STANDARD, UuidRepresentation.STANDARD)])
+        Codec<UUID> codec = registry.get(UUID)
+
+        BsonBinaryWriter bsonWriter = new BsonBinaryWriter(outputBuffer, false)
+        bsonWriter.writeStartDocument()
+        bsonWriter.writeName('_id')
+
+        byte[] encodedDoc = [0, 0, 0, 0,       //Start of document
+                             5,                // type (BINARY)
+                             95, 105, 100, 0,  // "_id"
+                             16, 0, 0, 0,      // int "16" (length)
+                             4,                // bsonSubType
+                             1, 2, 3, 4, 5, 6, 7, 8,
+                             9, 10, 11, 12, 13, 14, 15, 16] //8 bytes for long, 2 longs for UUID
+
+        def uuid = UUID.fromString('01020304-0506-0708-090a-0b0c0d0e0f10')
+
+        when:
+        codec.encode(bsonWriter, uuid, EncoderContext.builder().build())
+
+        then:
+        bsonWriter.getBuffer().toByteArray() == encodedDoc
+
     }
 }

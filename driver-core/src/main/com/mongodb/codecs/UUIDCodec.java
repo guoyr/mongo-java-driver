@@ -35,13 +35,36 @@ import static com.mongodb.codecs.CodecHelper.reverseByteArray;
  * @since 3.0
  */
 public class UUIDCodec implements Codec<UUID> {
+
+
+    private UuidRepresentation encoderUuidRepresentation = UuidRepresentation.JAVA_LEGACY;
+    private UuidRepresentation decoderUuidRepresentation = UuidRepresentation.JAVA_LEGACY;
+
+    /**
+     * The UUIDRepresentation
+     * default is JAVA_LEGACY to be compatible with existing documents
+     *
+     * @param encoderUuidRepresentation the representation of UUID for encoding
+     * @param decoderUuidRepresentation the representation of the UUID for decoding
+     *
+     * @since 3.0
+     * @see org.bson.UuidRepresentation
+     */
+    public UUIDCodec(final UuidRepresentation encoderUuidRepresentation, final UuidRepresentation decoderUuidRepresentation) {
+        this.encoderUuidRepresentation = encoderUuidRepresentation;
+        this.decoderUuidRepresentation = decoderUuidRepresentation;
+    }
+
+    public UUIDCodec() {
+    }
+
     @Override
     public void encode(final BsonWriter writer, final UUID value, final EncoderContext encoderContext) {
         byte[] binaryData = new byte[16];
         writeLongToArrayBigEndian(binaryData, 0, value.getMostSignificantBits());
         writeLongToArrayBigEndian(binaryData, 8, value.getLeastSignificantBits());
 
-        switch (encoderContext.getUuidRepresentation()) {
+        switch (encoderUuidRepresentation) {
             case C_SHARP_LEGACY:
                 reverseByteArray(binaryData, 0, 4);
                 reverseByteArray(binaryData, 4, 2);
@@ -59,7 +82,7 @@ public class UUIDCodec implements Codec<UUID> {
         }
 
         // changed the default subtype to STANDARD since 3.0
-        if (encoderContext.getUuidRepresentation() == UuidRepresentation.STANDARD) {
+        if (encoderUuidRepresentation == UuidRepresentation.STANDARD) {
             writer.writeBinaryData(new BsonBinary(BsonBinarySubType.UUID_STANDARD, binaryData));
         } else {
             writer.writeBinaryData(new BsonBinary(BsonBinarySubType.UUID_LEGACY, binaryData));
@@ -69,7 +92,7 @@ public class UUIDCodec implements Codec<UUID> {
     @Override
     public UUID decode(final BsonReader reader, final DecoderContext decoderContext) {
         BsonBinary binaryData = reader.readBinaryData();
-        BinaryToUUIDTransformer transformer = new BinaryToUUIDTransformer(decoderContext.getUuidRepresentation());
+        BinaryToUUIDTransformer transformer = new BinaryToUUIDTransformer(decoderUuidRepresentation);
         return transformer.transform(binaryData);
     }
 

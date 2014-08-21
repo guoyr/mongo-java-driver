@@ -17,7 +17,6 @@
 package org.bson.codecs;
 
 import org.bson.BsonWriter;
-import org.bson.UuidRepresentation;
 
 /**
  * The context for encoding values to BSON.
@@ -30,7 +29,6 @@ public final class EncoderContext {
     private static final EncoderContext DEFAULT_CONTEXT = EncoderContext.builder().build();
 
     private final boolean encodingCollectibleDocument;
-    private final UuidRepresentation uuidRepresentation;
     /**
      * Create a builder.
      *
@@ -53,33 +51,13 @@ public final class EncoderContext {
         return encodingCollectibleDocument;
     }
 
-    public UuidRepresentation getUuidRepresentation() {
-        return uuidRepresentation;
-    }
-
     /**
      * A builder for {@code EncoderContext} instances.
      */
     public static final class Builder {
         private boolean encodingCollectibleDocument;
-        private UuidRepresentation uuidRepresentation = UuidRepresentation.JAVA_LEGACY;
 
         private Builder() {
-        }
-
-        /**
-         * Sets the UUID representation
-         *
-         * Default is JAVA_LEGACY for compatibility reasons
-         *
-         * @param uuidRepresentation the representation of UUID
-         * @return the Builder
-         * @since 3.0
-         * @see org.bson.UuidRepresentation
-         */
-        public Builder uuidRepresentation(final UuidRepresentation uuidRepresentation) {
-            this.uuidRepresentation = uuidRepresentation;
-            return this;
         }
 
         /**
@@ -118,6 +96,5 @@ public final class EncoderContext {
 
     private EncoderContext(final Builder builder) {
         encodingCollectibleDocument = builder.encodingCollectibleDocument;
-        uuidRepresentation = builder.uuidRepresentation;
     }
 }
