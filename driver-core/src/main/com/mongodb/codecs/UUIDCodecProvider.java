@@ -26,7 +26,9 @@ import org.bson.codecs.configuration.CodecRegistry;
 import java.util.UUID;
 
 /**
+ * A {@code CodecProvider} for UUID Codecs with custom UUID representations
  *
+ * @since 3.0
  */
 public class UUIDCodecProvider implements CodecProvider {
 

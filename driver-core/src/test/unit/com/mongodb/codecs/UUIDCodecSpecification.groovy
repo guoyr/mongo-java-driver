@@ -155,32 +155,4 @@ class UUIDCodecSpecification extends Specification {
                 UUID.fromString('04030201-0605-0807-090a-0b0c0d0e0f10') // simulated C# UUID
         ]
     }
-
-    def 'should get the codec with the correct representation from the registry'() {
-        given:
-        RootCodecRegistry registry = new RootCodecRegistry(
-                [new UUIDCodecProvider(UuidRepresentation.STANDARD, UuidRepresentation.STANDARD)])
-        Codec<UUID> codec = registry.get(UUID)
-
-        BsonBinaryWriter bsonWriter = new BsonBinaryWriter(outputBuffer, false)
-        bsonWriter.writeStartDocument()
-        bsonWriter.writeName('_id')
-
-        byte[] encodedDoc = [0, 0, 0, 0,       //Start of document
-                             5,                // type (BINARY)
-                             95, 105, 100, 0,  // "_id"
-                             16, 0, 0, 0,      // int "16" (length)
-                             4,                // bsonSubType
-                             1, 2, 3, 4, 5, 6, 7, 8,
-                             9, 10, 11, 12, 13, 14, 15, 16] //8 bytes for long, 2 longs for UUID
-
-        def uuid = UUID.fromString('01020304-0506-0708-090a-0b0c0d0e0f10')
-
-        when:
-        codec.encode(bsonWriter, uuid, EncoderContext.builder().build())
-
-        then:
-        bsonWriter.getBuffer().toByteArray() == encodedDoc
-
-    }
 }
