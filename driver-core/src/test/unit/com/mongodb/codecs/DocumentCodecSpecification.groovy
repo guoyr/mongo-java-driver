@@ -125,7 +125,7 @@ class DocumentCodecSpecification extends Specification {
         writer << [
                 new BsonDocumentWriter(bsonDoc),
                 new BsonBinaryWriter(new BasicOutputBuffer(), false),
-//                new JsonWriter(stringWriter) // java-1398 needs to be fixed first
+//                new JsonWriter(stringWriter) //java-1406
         ]
 
     }

@@ -205,6 +205,9 @@ public class BsonDocumentReader extends AbstractBsonReader {
 
     @Override
     public void mark() {
+        if (mark != null) {
+            throw new BSONException("A mark already exists; it needs to be reset before creating a new one");
+        }
         mark = new Mark();
     }
 

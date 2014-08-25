@@ -685,44 +685,12 @@ public abstract class AbstractBsonReader implements Closeable, BsonReader {
         private BsonType currentBsonType;
         private String currentName;
 
-        protected State getState() {
-            return state;
-        }
-
-        protected void setState(final State state) {
-            this.state = state;
-        }
-
         protected Context getParentContext() {
             return parentContext;
         }
 
-        protected void setParentContext(final Context parentContext) {
-            this.parentContext = parentContext;
-        }
-
         protected BsonContextType getContextType() {
             return contextType;
-        }
-
-        protected void setContextType(final BsonContextType contextType) {
-            this.contextType = contextType;
-        }
-
-        protected BsonType getCurrentBsonType() {
-            return currentBsonType;
-        }
-
-        protected void setCurrentBsonType(final BsonType currentBsonType) {
-            this.currentBsonType = currentBsonType;
-        }
-
-        protected String getCurrentName() {
-            return currentName;
-        }
-
-        protected void setCurrentName(final String currentName) {
-            this.currentName = currentName;
         }
 
         protected Mark() {

@@ -335,12 +335,19 @@ public class BsonBinaryReader extends AbstractBsonReader {
 
     @Override
     public void mark() {
+        if (mark != null) {
+            throw new BSONException("A mark already exists; it needs to be reset before creating a new one");
+        }
         mark = new Mark();
     }
 
     @Override
     public void reset() {
+        if (mark == null) {
+            throw new BSONException("trying to reset a mark before creating it");
+        }
         mark.reset();
+        mark = null;
     }
 
     protected class Mark extends AbstractBsonReader.Mark {

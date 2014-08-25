@@ -346,7 +346,7 @@ public interface BsonReader {
     /**
      * Creates a bookmark in the BsonReader's input
      *
-     * If more than one mark is created, the last one overrides the previous ones
+     * The previous mark must be cleared before creating a new one
      */
     void mark();
 

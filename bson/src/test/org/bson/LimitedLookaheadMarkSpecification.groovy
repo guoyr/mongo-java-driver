@@ -16,64 +16,131 @@
  *
  */
 
-package com.mongodb
+package org.bson
 
-import com.mongodb.codecs.DocumentCodec
-import org.bson.BsonBinaryReader
-import org.bson.BsonBinaryWriter
-import org.bson.BsonDocument
-import org.bson.BsonDocumentReader
-import org.bson.BsonDocumentWriter
-import org.bson.BsonReader
-import org.bson.BsonUndefined
-import org.bson.BsonWriter
-import org.bson.ByteBufNIO
-import org.bson.codecs.EncoderContext
 import org.bson.io.BasicInputBuffer
 import org.bson.io.BasicOutputBuffer
 import org.bson.json.JsonReader
-import org.mongodb.Document
 import spock.lang.Shared
 import spock.lang.Specification
 
 import java.nio.ByteBuffer
 
-import static java.util.Arrays.asList
-
-/**
- *
- */
 @SuppressWarnings('UnnecessaryObjectReferences')
 class LimitedLookaheadMarkSpecification extends Specification {
 
-    @Shared Document doc
-    @Shared BsonDocument bsonDoc = new BsonDocument()
-    @Shared StringWriter stringWriter = new StringWriter()
+    @Shared BsonDocument bsonDoc
+    @Shared BasicOutputBuffer buffer
+    @Shared StringWriter stringWriter
 
     def setupSpec() {
-        doc = new Document()
-
-        doc.with {
-            put('int64', 52L)
-            put('undefined', new BsonUndefined())
-            put('array', asList(1, 2L, [3, 4], new Document('a', 5), null))
-            put('document', new Document('a', 6))
-        }
+        bsonDoc = new BsonDocument()
+        buffer = new BasicOutputBuffer()
+        stringWriter = new StringWriter()
     }
 
-    def 'Lookahead should work after reading end of document'(BsonWriter writer) {
+    def 'should throw if mark without resetting previous mark'(BsonWriter writer) {
         given:
-        doc
+        writer.with {
+            writeStartDocument()
+            writeInt64('int64', 52L)
+            writeEndDocument()
+        }
 
         when:
-        new DocumentCodec().encode(writer, doc, EncoderContext.builder().build())
-
         BsonReader reader
         if (writer instanceof BsonDocumentWriter) {
             reader = new BsonDocumentReader(bsonDoc)
         } else if (writer instanceof BsonBinaryWriter) {
+
             reader = new BsonBinaryReader(new BasicInputBuffer(new ByteBufNIO(
-                    ByteBuffer.wrap(writer.buffer.toByteArray()))), true)
+                    ByteBuffer.wrap(buffer.toByteArray()))), true)
+        } else {
+            reader = new JsonReader(stringWriter.toString())
+        }
+
+        reader.readStartDocument()
+        reader.mark()
+        reader.mark()
+
+        then:
+        thrown(BSONException)
+
+        where:
+        writer << [
+                new BsonDocumentWriter(bsonDoc),
+                new BsonBinaryWriter(buffer, false),
+//            new JsonWriter(stringWriter) //java-1406
+        ]
+    }
+
+    def 'should throw if reset without mark'(BsonWriter writer) {
+        given:
+        writer.with {
+            writeStartDocument()
+            writeInt64('int64', 52L)
+            writeEndDocument()
+        }
+
+        when:
+        BsonReader reader
+        if (writer instanceof BsonDocumentWriter) {
+            reader = new BsonDocumentReader(bsonDoc)
+        } else if (writer instanceof BsonBinaryWriter) {
+
+            reader = new BsonBinaryReader(new BasicInputBuffer(new ByteBufNIO(
+                    ByteBuffer.wrap(buffer.toByteArray()))), true)
+        } else {
+            reader = new JsonReader(stringWriter.toString())
+        }
+
+        reader.readStartDocument()
+        reader.reset()
+
+        then:
+        thrown(BSONException)
+
+        where:
+        writer << [
+                new BsonDocumentWriter(bsonDoc),
+                new BsonBinaryWriter(buffer, false),
+//            new JsonWriter(stringWriter) //java-1406
+        ]
+    }
+
+    def 'Lookahead should work after reading end of document'(BsonWriter writer) {
+        given:
+        writer.with {
+            writeStartDocument()
+            writeInt64('int64', 52L)
+            writeUndefined('undefined')
+            writeStartArray('array')
+            writeInt32(1)
+            writeInt64(2L)
+            writeStartArray()
+            writeInt32(3)
+            writeInt32(4)
+            writeEndArray()
+            writeStartDocument()
+            writeInt32('a', 5)
+            writeEndDocument()
+            writeNull()
+            writeEndArray()
+            writeStartDocument('document')
+            writeInt32('a', 6)
+            writeEndDocument()
+            writeEndDocument()
+        }
+        
+
+        when:
+        BsonReader reader
+        if (writer instanceof BsonDocumentWriter) {
+            reader = new BsonDocumentReader(bsonDoc)
+        } else if (writer instanceof BsonBinaryWriter) {
+
+            reader = new BsonBinaryReader(new BasicInputBuffer(new ByteBufNIO(
+                    ByteBuffer.wrap(buffer.toByteArray()))), true)
         } else {
             reader = new JsonReader(stringWriter.toString())
         }
@@ -188,8 +255,8 @@ class LimitedLookaheadMarkSpecification extends Specification {
         where:
         writer << [
             new BsonDocumentWriter(bsonDoc),
-            new BsonBinaryWriter(new BasicOutputBuffer(), false),
-//            new JsonWriter(stringWriter)
+            new BsonBinaryWriter(buffer, false),
+//            new JsonWriter(stringWriter) //java-1406
         ]
     }
 }

@@ -36,24 +36,25 @@ import static com.mongodb.codecs.CodecHelper.reverseByteArray;
  */
 public class UUIDCodec implements Codec<UUID> {
 
-
-    final private UuidRepresentation encoderUuidRepresentation;
-    final private UuidRepresentation decoderUuidRepresentation;
+    private final UuidRepresentation encoderUuidRepresentation;
+    private final UuidRepresentation decoderUuidRepresentation;
 
     /**
-     * The default UUIDRepresentation is JAVA_LEGACY to be compatible with existing documents
+     * The constructor for UUIDCodec
      *
-     * @param encoderUuidRepresentation the representation of UUID for encoding
-     * @param decoderUuidRepresentation the representation of the UUID for decoding
+     * @param uuidRepresentation the representation of UUID for encoding
      *
      * @since 3.0
      * @see org.bson.UuidRepresentation
      */
-    public UUIDCodec(final UuidRepresentation encoderUuidRepresentation, final UuidRepresentation decoderUuidRepresentation) {
-        this.encoderUuidRepresentation = encoderUuidRepresentation;
-        this.decoderUuidRepresentation = decoderUuidRepresentation;
+    public UUIDCodec(final UuidRepresentation uuidRepresentation) {
+        this.encoderUuidRepresentation = uuidRepresentation;
+        this.decoderUuidRepresentation = uuidRepresentation;
     }
 
+    /**
+     * The constructor for UUIDCodec, default is JAVA_LEGACY
+     */
     public UUIDCodec() {
         this.encoderUuidRepresentation = UuidRepresentation.JAVA_LEGACY;
         this.decoderUuidRepresentation = UuidRepresentation.JAVA_LEGACY;

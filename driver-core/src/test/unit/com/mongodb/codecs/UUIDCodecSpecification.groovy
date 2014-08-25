@@ -22,10 +22,8 @@ import org.bson.BsonBinaryReader
 import org.bson.BsonBinaryWriter
 import org.bson.ByteBufNIO
 import org.bson.UuidRepresentation
-import org.bson.codecs.Codec
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
-import org.bson.codecs.configuration.RootCodecRegistry
 import org.bson.io.BasicInputBuffer
 import org.bson.io.BasicOutputBuffer
 import spock.lang.Shared
@@ -67,10 +65,10 @@ class UUIDCodecSpecification extends Specification {
         where:
 
         codec << [
-                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.JAVA_LEGACY),
-                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.STANDARD),
-                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.PYTHON_LEGACY),
-                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.C_SHARP_LEGACY),
+                new UUIDCodec(),
+                new UUIDCodec(UuidRepresentation.STANDARD),
+                new UUIDCodec(UuidRepresentation.PYTHON_LEGACY),
+                new UUIDCodec(UuidRepresentation.C_SHARP_LEGACY)
         ]
 
         list << [
@@ -142,10 +140,10 @@ class UUIDCodecSpecification extends Specification {
         bsonSubType << [3, 4, 3, 3]
 
         codec << [
-                new UUIDCodec(UuidRepresentation.JAVA_LEGACY, UuidRepresentation.JAVA_LEGACY),
-                new UUIDCodec(UuidRepresentation.STANDARD, UuidRepresentation.JAVA_LEGACY),
-                new UUIDCodec(UuidRepresentation.PYTHON_LEGACY, UuidRepresentation.JAVA_LEGACY),
-                new UUIDCodec(UuidRepresentation.C_SHARP_LEGACY, UuidRepresentation.JAVA_LEGACY),
+                new UUIDCodec(),
+                new UUIDCodec(UuidRepresentation.STANDARD),
+                new UUIDCodec(UuidRepresentation.PYTHON_LEGACY),
+                new UUIDCodec(UuidRepresentation.C_SHARP_LEGACY)
         ]
 
         uuid << [

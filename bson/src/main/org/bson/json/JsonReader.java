@@ -18,6 +18,7 @@ package org.bson.json;
 
 
 import org.bson.AbstractBsonReader;
+import org.bson.BSONException;
 import org.bson.BsonBinary;
 import org.bson.BsonBinarySubType;
 import org.bson.BsonContextType;
@@ -967,12 +968,19 @@ public class JsonReader extends AbstractBsonReader {
 
     @Override
     public void mark() {
+        if (mark != null) {
+            throw new BSONException("A mark already exists; it needs to be reset before creating a new one");
+        }
         mark = new Mark();
     }
 
     @Override
     public void reset() {
+        if (mark == null) {
+            throw new BSONException("trying to reset a mark before creating it");
+        }
         mark.reset();
+        mark = null;
     }
 
     @Override
@@ -997,6 +1005,7 @@ public class JsonReader extends AbstractBsonReader {
             JsonReader.this.pushedToken = pushedToken;
             JsonReader.this.currentValue = currentValue;
             JsonReader.this.scanner.setBufferPosition(position);
+            JsonReader.this.setContext(new Context(getParentContext(), getContextType()));
         }
     }
 
