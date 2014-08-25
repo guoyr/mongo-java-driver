@@ -21,6 +21,7 @@ package org.bson
 import org.bson.io.BasicInputBuffer
 import org.bson.io.BasicOutputBuffer
 import org.bson.json.JsonReader
+import org.bson.json.JsonWriter
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -256,7 +257,7 @@ class LimitedLookaheadMarkSpecification extends Specification {
         writer << [
             new BsonDocumentWriter(bsonDoc),
             new BsonBinaryWriter(buffer, false),
-//            new JsonWriter(stringWriter) //java-1406
+            new JsonWriter(stringWriter)
         ]
     }
 }
