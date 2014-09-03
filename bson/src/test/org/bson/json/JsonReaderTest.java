@@ -290,14 +290,17 @@ public class JsonReaderTest {
 
     @Test
     public void testJavaScriptWithScope() {
-        String json = "{ \"$code\" : \"function f() { return n; }\", \"$scope\" : { \"n\" : 1 } }";
+        String json = "{\"codeWithScope\": {\"$code\": \"int x = n\",\"$scope\": {\"n\": 1}}}";
         bsonReader = new JsonReader(json);
+        bsonReader.readStartDocument();
         assertEquals(BsonType.JAVASCRIPT_WITH_SCOPE, bsonReader.readBsonType());
-        assertEquals("function f() { return n; }", bsonReader.readJavaScriptWithScope());
+        assertEquals("codeWithScope", bsonReader.readName());
+        assertEquals("int x = n", bsonReader.readJavaScriptWithScope());
         bsonReader.readStartDocument();
         assertEquals(BsonType.INT32, bsonReader.readBsonType());
         assertEquals("n", bsonReader.readName());
         assertEquals(1, bsonReader.readInt32());
+        bsonReader.readEndDocument();
         bsonReader.readEndDocument();
         assertEquals(AbstractBsonReader.State.DONE, bsonReader.getState());
     }
