@@ -38,11 +38,11 @@ public class JacksonCodec<T> implements Codec<T> {
 
     private final ObjectMapper objectMapper;
 
-    public JacksonCodec(Class<T> clazz) {
+    public JacksonCodec(final Class<T> clazz) {
         this(new ObjectMapper(), clazz);
     }
 
-    public JacksonCodec(ObjectMapper objMapper, Class<T> clazz) {
+    public JacksonCodec(final ObjectMapper objMapper, final Class<T> clazz) {
 
         objectMapper = objMapper;
         objectMapper.registerModule(new JacksonBsonModule());
@@ -54,7 +54,7 @@ public class JacksonCodec<T> implements Codec<T> {
 
         try {
             JacksonBsonParser p = new JacksonBsonParser(reader);
-            return objectMapper.readValue(p,clazz);
+            return objectMapper.readValue(p, clazz);
 
         } catch (IOException e) {
             throw new BsonSerializationException("error reading value", e);

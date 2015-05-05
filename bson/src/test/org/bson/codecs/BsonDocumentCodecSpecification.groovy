@@ -49,7 +49,7 @@ import java.nio.ByteBuffer
 
 import static java.util.Arrays.asList
 
-class DBsonDocumentCodecSpecification extends Specification {
+class BsonDocumentCodecSpecification extends Specification {
     def 'should encode and decode all default types'() {
         given:
         def doc = new BsonDocument(

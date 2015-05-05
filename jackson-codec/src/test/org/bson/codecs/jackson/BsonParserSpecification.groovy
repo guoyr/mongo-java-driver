@@ -1,14 +1,14 @@
 /*
  * Copyright (c) 2008-2014 MongoDB, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -34,14 +34,9 @@ import org.bson.BsonNull
 import org.bson.BsonObjectId
 import org.bson.BsonString
 import org.bson.BsonTimestamp
-import org.bson.BsonType
 import org.bson.types.ObjectId
 import spock.lang.Specification
 
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertTrue
 
 /**
  * Created by guo on 7/18/14.
@@ -63,23 +58,24 @@ class BsonParserSpecification extends Specification {
         def reader = new BsonDocumentReader(doc);
         def parser = new JacksonBsonParser(reader);
 
-        def names = ["string","nulls","integer","longs","doubles","booleans"]
-        def values = ["this is a string", null, -1, -2L, -3.0, true];
+        def names = ['string', 'nulls', 'integer', 'longs', 'doubles', 'booleans']
+        def values = ['this is a string', null, -1, -2L, -3.0, true];
 
         when:
         parser.getCurrentToken(); //init the parser
-        def token = parser.nextToken();
+        def token;
 
         then:
         int i = 0;
         while (i < names.size()) {
+            token = parser.nextToken();
             if (token == JsonToken.FIELD_NAME) {
                 token == names[i]
             } else {
                 parser.getCurrentValue() == values[i]
                 i++
             }
-            token = parser.nextToken();
+
         }
 
 
@@ -87,7 +83,7 @@ class BsonParserSpecification extends Specification {
 
     def 'should return null when parse beyond end'() {
         given:
-        def doc = new BsonDocument("myField", new BsonString("myValue"))
+        def doc = new BsonDocument('myField', new BsonString('myValue'))
         def reader = new BsonDocumentReader(doc)
         def parser = new JacksonBsonParser(reader)
 
@@ -108,9 +104,9 @@ class BsonParserSpecification extends Specification {
         given:
         def bigStr = new StringBuilder();
         for (int i = 0; i < 80000; i++) {
-            bigStr.append("abc");
+            bigStr.append('abc');
         }
-        def doc = new BsonDocument("string", new BsonString(bigStr.toString()))
+        def doc = new BsonDocument('string', new BsonString(bigStr.toString()))
         def reader = new BsonDocumentReader(doc)
         def parser = new JacksonBsonParser(reader)
 
@@ -127,8 +123,8 @@ class BsonParserSpecification extends Specification {
         given:
 
         BsonDocument doc = new BsonDocument([
-                new BsonElement("double", new BsonDouble(5.0)),
-                new BsonElement("int32", new BsonInt32(1234))
+                new BsonElement('double', new BsonDouble(5.0)),
+                new BsonElement('int32', new BsonInt32(1234))
         ])
         def reader = new BsonDocumentReader(doc)
         def parser = new JacksonBsonParser(reader)
@@ -138,11 +134,11 @@ class BsonParserSpecification extends Specification {
         mapper.configure(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS, true);
 
         when:
-        Map<?, ?> data = mapper.readValue(parser, Map.class);
+        Map<?, ?> data = mapper.readValue(parser, Map);
 
         then:
-        BigDecimal.class == data.get("double").getClass()
-        BigInteger.class == data.get("int32").getClass()
+        BigDecimal == data.get('double').getClass()
+        BigInteger == data.get('int32').getClass()
 
     }
 
@@ -150,11 +146,11 @@ class BsonParserSpecification extends Specification {
         given:
 
         def doc = new BsonDocument([
-                new BsonElement("int32",new BsonInt32(5)),
-                new BsonElement("obj",new BsonDocument(
-                        "int64", new BsonInt64(10L)
+                new BsonElement('int32',new BsonInt32(5)),
+                new BsonElement('obj',new BsonDocument(
+                        'int64', new BsonInt64(10L)
                 )),
-                new BsonElement("string", new BsonString("hello"))
+                new BsonElement('string', new BsonString('hello'))
         ])
 
         def reader = new BsonDocumentReader(doc)
@@ -162,15 +158,15 @@ class BsonParserSpecification extends Specification {
         ObjectMapper mapper = new ObjectMapper();
 
         when:
-        Map<?, ?> data = mapper.readValue(parser, Map.class);
+        Map<?, ?> data = mapper.readValue(parser, Map);
 
         then:
         3 == data.size();
-        5 == data.get("int32");
-        Map<?, ?> data2 = (Map<?, ?>)data.get("obj");
+        5 == data.get('int32');
+        Map<?, ?> data2 = (Map<?, ?>)data.get('obj');
         1 == data2.size();
-        10L == data2.get("int64");
-        "hello" == data.get("string");
+        10L == data2.get('int64');
+        'hello' == data.get('string');
 
     }
 
@@ -178,12 +174,12 @@ class BsonParserSpecification extends Specification {
         given:
 
         def doc = new BsonDocument([
-                new BsonElement("int32",new BsonInt32(5)),
-                new BsonElement("arr",new BsonArray([
+                new BsonElement('int32',new BsonInt32(5)),
+                new BsonElement('arr',new BsonArray([
                     new BsonInt32(5),
                     new BsonInt32(6)
                 ])),
-                new BsonElement("string", new BsonString("hello"))
+                new BsonElement('string', new BsonString('hello'))
         ])
 
         def reader = new BsonDocumentReader(doc)
@@ -191,11 +187,11 @@ class BsonParserSpecification extends Specification {
         ObjectMapper mapper = new ObjectMapper();
 
         when:
-        Map<?, ?> data = mapper.readValue(parser, Map.class);
+        Map<?, ?> data = mapper.readValue(parser, Map);
 
         then:
         3 == data.size();
-        5 == data.get("int32");
+        5 == data.get('int32');
 
     }
 
@@ -203,8 +199,8 @@ class BsonParserSpecification extends Specification {
         given:
 
         BsonDocument doc = new BsonDocument([
-                new BsonElement("double", new BsonDouble(5.0)),
-                new BsonElement("int32", new BsonInt32(1234))
+                new BsonElement('double', new BsonDouble(5.0)),
+                new BsonElement('int32', new BsonInt32(1234))
         ])
 
         def reader = new BsonDocumentReader(doc)
@@ -215,15 +211,15 @@ class BsonParserSpecification extends Specification {
 
         then:
         JsonToken.FIELD_NAME == parser.nextToken();
-        "double" == parser.getCurrentName();
+        'double' == parser.getCurrentName();
         JsonToken.VALUE_NUMBER_FLOAT == parser.nextToken();
         5.0f == parser.getFloatValue();
-        "5.0" == parser.getText();
+        '5.0' == parser.getText();
         JsonToken.FIELD_NAME == parser.nextToken();
-        "int32" == parser.getCurrentName();
+        'int32' == parser.getCurrentName();
         JsonToken.VALUE_NUMBER_INT == parser.nextToken();
         1234 == parser.getIntValue();
-        "1234" == parser.getText();
+        '1234' == parser.getText();
         JsonToken.END_OBJECT == parser.nextToken();
     }
 
@@ -231,7 +227,7 @@ class BsonParserSpecification extends Specification {
         given:
         byte[] b = [1, 2, 3, 4, 5 ]
         BsonDocument doc = new BsonDocument([
-                new BsonElement("byte", new BsonBinary(b)),
+                new BsonElement('byte', new BsonBinary(b)),
         ])
 
         def reader = new BsonDocumentReader(doc)
@@ -249,7 +245,7 @@ class BsonParserSpecification extends Specification {
         given:
         def objectId = new ObjectId()
         BsonDocument doc = new BsonDocument([
-                new BsonElement("byte", new BsonObjectId(objectId)),
+                new BsonElement('byte', new BsonObjectId(objectId)),
         ])
 
         def reader = new BsonDocumentReader(doc)
@@ -267,7 +263,7 @@ class BsonParserSpecification extends Specification {
         given:
         def ts = new BsonTimestamp(10,5)
         BsonDocument doc = new BsonDocument([
-                new BsonElement("byte", ts),
+                new BsonElement('byte', ts),
         ])
 
         def reader = new BsonDocumentReader(doc)
@@ -283,9 +279,9 @@ class BsonParserSpecification extends Specification {
 
     def 'should return javscript'() {
         given:
-        def js = new BsonJavaScript("var a = 'this is some code'")
+        def js = new BsonJavaScript('var a = "this is some code"')
         BsonDocument doc = new BsonDocument([
-                new BsonElement("byte", js),
+                new BsonElement('byte', js),
         ])
 
         def reader = new BsonDocumentReader(doc)
@@ -303,7 +299,7 @@ class BsonParserSpecification extends Specification {
         given:
         def date = new Date()
         BsonDocument doc = new BsonDocument([
-                new BsonElement("byte", new BsonDateTime(date.getTime())),
+                new BsonElement('byte', new BsonDateTime(date.getTime())),
         ])
 
         def reader = new BsonDocumentReader(doc)

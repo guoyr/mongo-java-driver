@@ -27,7 +27,9 @@ import java.io.IOException;
 class JacksonJavascriptSerializer extends JacksonBsonSerializer<BsonJavaScript> {
 
     @Override
-    public void serialize(BsonJavaScript bsonJavaScript, JacksonBsonGenerator<BsonJavaScript> generator, SerializerProvider provider) throws IOException {
+    public void serialize(final BsonJavaScript bsonJavaScript,
+                          final JacksonBsonGenerator<BsonJavaScript> generator,
+                          final SerializerProvider provider) throws IOException {
         if (bsonJavaScript == null) {
             provider.defaultSerializeNull(generator);
         } else {

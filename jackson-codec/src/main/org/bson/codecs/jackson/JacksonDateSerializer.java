@@ -26,7 +26,10 @@ import java.util.Date;
  */
 class JacksonDateSerializer extends JacksonBsonSerializer<Date> {
     @Override
-    public void serialize(Date value, JacksonBsonGenerator<Date> generator, SerializerProvider provider) throws IOException {
+    public void serialize(
+            final Date value,
+            final JacksonBsonGenerator<Date> generator,
+            final SerializerProvider provider) throws IOException {
         if (value == null) {
             provider.defaultSerializeNull(generator);
         } else {

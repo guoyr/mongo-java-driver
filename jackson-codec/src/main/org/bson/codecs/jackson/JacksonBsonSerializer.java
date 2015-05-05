@@ -28,10 +28,11 @@ import java.io.IOException;
  */
 abstract class JacksonBsonSerializer<T> extends JsonSerializer<T> {
     @Override
-    public void serialize(T t, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        if (!(jsonGenerator instanceof JacksonBsonGenerator) || ((JacksonBsonGenerator)jsonGenerator).getClazz != Class<T>) {
-            throw new JsonGenerationException("JacksonBsonSerializer can " +
-                    "only be used with JacksonBsonGenerator");
+    @SuppressWarnings("unchecked")
+    public void serialize(final T t, final JsonGenerator jsonGenerator, final SerializerProvider serializerProvider) throws IOException {
+        if (!(jsonGenerator instanceof JacksonBsonGenerator)) {
+            throw new JsonGenerationException("JacksonBsonSerializer can "
+                    + "only be used with JacksonBsonGenerator");
         }
         serialize(t, (JacksonBsonGenerator<T>) jsonGenerator, serializerProvider);
     }

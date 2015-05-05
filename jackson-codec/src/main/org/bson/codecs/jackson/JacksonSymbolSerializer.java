@@ -27,7 +27,9 @@ import java.io.IOException;
 class JacksonSymbolSerializer extends JacksonBsonSerializer<BsonSymbol> {
 
     @Override
-    public void serialize(BsonSymbol value, JacksonBsonGenerator<BsonSymbol> generator, SerializerProvider provider) throws IOException {
+    public void serialize(final BsonSymbol value,
+                          final JacksonBsonGenerator<BsonSymbol> generator,
+                          final SerializerProvider provider) throws IOException {
         if (value == null) {
             provider.defaultSerializeNull(generator);
         } else {

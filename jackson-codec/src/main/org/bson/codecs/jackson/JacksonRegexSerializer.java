@@ -27,7 +27,9 @@ import java.util.regex.Pattern;
 class JacksonRegexSerializer extends JacksonBsonSerializer<Pattern> {
 
     @Override
-    public void serialize(Pattern value, JacksonBsonGenerator<Pattern> generator, SerializerProvider provider) throws IOException {
+    public void serialize(final Pattern value,
+                          final JacksonBsonGenerator<Pattern> generator,
+                          final SerializerProvider provider) throws IOException {
         if (value == null) {
             provider.defaultSerializeNull(generator);
         } else {

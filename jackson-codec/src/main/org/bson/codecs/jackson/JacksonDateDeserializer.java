@@ -29,10 +29,10 @@ import java.util.Date;
 class JacksonDateDeserializer extends JacksonBsonDeserializer<Date> {
 
     @Override
-    public Date deserialize(JacksonBsonParser parser, DeserializationContext ctxt)
+    public Date deserialize(final JacksonBsonParser parser, final DeserializationContext ctxt)
             throws IOException {
-        if (parser.getCurrentToken() != JsonToken.VALUE_EMBEDDED_OBJECT ||
-                parser.getCurBsonType() != BsonType.DATE_TIME) {
+        if (parser.getCurrentToken() != JsonToken.VALUE_EMBEDDED_OBJECT
+                || parser.getCurBsonType() != BsonType.DATE_TIME) {
             throw ctxt.mappingException(Date.class);
         }
 
@@ -40,6 +40,6 @@ class JacksonDateDeserializer extends JacksonBsonDeserializer<Date> {
         if (obj == null) {
             return null;
         }
-        return (Date)obj;
+        return (Date) obj;
     }
 }

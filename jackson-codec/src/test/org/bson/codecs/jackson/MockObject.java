@@ -30,36 +30,38 @@ import java.util.regex.Pattern;
  */
 public class MockObject {
 
-    public BsonJavaScript js;
-    public BsonSymbol symbol;
-    public BsonTimestamp ts;
-    public Pattern regex;
-    public Date date;
-    public ObjectId oid;
-    public String _id;
-    public String string;
-    public Object nulls;
-    public Integer integer;
-    public Long longs;
+    private BsonJavaScript js;
+    private BsonSymbol symbol;
+    private BsonTimestamp ts;
+    private Pattern regex;
+    private Date date;
+    private ObjectId oid;
+    //CHECKSTYLE:OFF
+    private String _id;
+    //CHECKSTYLE:ON
+    private String string;
+    private Object nulls;
+    private Integer integer;
+    private Long longs;
 //    public String utf8String;
 //    public BigInteger bigInteger;
 //    public Float floats;
 //    public BigDecimal bigDecimal;
-    public Double doubles;
-    public Boolean booleans;
-    public ArrayList<Object> arrays;
-    public MockObject obj;
+    private Double doubles;
+    private Boolean booleans;
+    private ArrayList<Object> arrays;
+    private MockObject obj;
 
 
     public MockObject() {
         doubles = -4.0;
     }
 
-    public MockObject(boolean mockFields) {
+    public MockObject(final boolean mockFields) {
         if (mockFields) {
             js = new BsonJavaScript("var a = 1;");
             symbol = new BsonSymbol("someSymbol");
-            ts = new BsonTimestamp(10,20);
+            ts = new BsonTimestamp(10, 20);
             regex = Pattern.compile("pattern");
             _id = "this is an unique ID";
             obj = new MockObject();
@@ -83,29 +85,29 @@ public class MockObject {
 
     @Override
     public String toString() {
-        return "org.bson.codecs.jackson.MockObject{" +
-                "js='" + js + "'" +
-                ", symbol='" + symbol + "'" +
-                ", ts='" + ts + "'" +
-                ", regex='" + regex.pattern() + "'" +
-                ", date=" + date + "'" +
-                ", oid='" + oid + "'" +
-                ", _id='" + _id + "'" +
-                ", string='" + string + "'" +
-                ", integer=" + integer +
-                ", longs=" + longs +
-//                ", bigInteger=" + bigInteger +
-//                ", floats=" + floats +
-                ", doubles=" + doubles +
-//                ", bigDecimal=" + bigDecimal +
-                ", booleans=" + booleans +
-                ", arrays=" +  arrays +
-                ", obj=" + obj +
-                '}';
+        return "org.bson.codecs.jackson.MockObject{"
+                + "js='" + js + "'"
+                + ", symbol='" + symbol + "'"
+                + ", ts='" + ts + "'"
+                + ", regex='" + regex.pattern() + "'"
+                + ", date=" + date + "'"
+                + ", oid='" + oid + "'"
+                + ", _id='" + _id + "'"
+                + ", string='" + string + "'"
+                + ", integer=" + integer
+                + ", longs=" + longs
+//                ", bigInteger=" + bigInteger
+//                ", floats=" + floats
+                + ", doubles=" + doubles
+//                ", bigDecimal=" + bigDecimal
+                + ", booleans=" + booleans
+                + ", arrays=" +  arrays
+                + ", obj=" + obj
+                + '}';
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }

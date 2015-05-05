@@ -26,7 +26,9 @@ import java.io.IOException;
  */
 class JacksonTimestampSerializer extends JacksonBsonSerializer<BsonTimestamp> {
     @Override
-    public void serialize(BsonTimestamp timestamp, JacksonBsonGenerator<BsonTimestamp> bsonGenerator, SerializerProvider provider) throws IOException {
+    public void serialize(final BsonTimestamp timestamp,
+                          final JacksonBsonGenerator<BsonTimestamp> bsonGenerator,
+                          final SerializerProvider provider) throws IOException {
         if (timestamp == null) {
             provider.defaultSerializeNull(bsonGenerator);
         } else {

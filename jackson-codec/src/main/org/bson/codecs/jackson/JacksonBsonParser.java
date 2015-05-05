@@ -54,7 +54,8 @@ public class JacksonBsonParser extends JsonParser {
 
     // used as a stack where the last element is the bottom
     private ArrayDeque<ReaderContext> readerContextDeque = new ArrayDeque<ReaderContext>();
-    private JsonToken tokenOfCurValue; // token of the value of the current BsonType, could be null if current BsonType isn't of (key, value) pair
+    // token of the value of the current BsonType, could be null if current BsonType isn't of (key, value) pair
+    private JsonToken tokenOfCurValue;
     private Object curValue;
     private JsonToken curToken;
     private BsonType curBsonType;
@@ -70,7 +71,7 @@ public class JacksonBsonParser extends JsonParser {
     }
 
 
-    public JacksonBsonParser(BsonReader reader) {
+    public JacksonBsonParser(final BsonReader reader) {
         this.reader = reader;
         readerContextDeque.offerFirst(ReaderContext.NULL_CONTEXT);
     }
@@ -79,7 +80,7 @@ public class JacksonBsonParser extends JsonParser {
         return null;
     }
 
-    public void setCodec(ObjectCodec objectCodec) {
+    public void setCodec(final ObjectCodec objectCodec) {
 
     }
 
@@ -115,7 +116,6 @@ public class JacksonBsonParser extends JsonParser {
     @Override
     public JsonToken nextToken() throws IOException {
 
-
         switch (readerContextDeque.peekFirst()) {
             case FIELD_NAME_CONTEXT:
                 // here we've already read the field name, so only need to pop the field name context
@@ -142,8 +142,12 @@ public class JacksonBsonParser extends JsonParser {
         ReaderContext curContext = readerContextDeque.peekFirst();
 
         // context that we're about to be in
-        if (curBsonType == BsonType.DOCUMENT) readerContextDeque.offerFirst(ReaderContext.DOCUMENT_CONTEXT);
-        if (curBsonType == BsonType.ARRAY) readerContextDeque.offerFirst(ReaderContext.ARRAY_CONTEXT);
+        if (curBsonType == BsonType.DOCUMENT) {
+            readerContextDeque.offerFirst(ReaderContext.DOCUMENT_CONTEXT);
+        }
+        if (curBsonType == BsonType.ARRAY) {
+            readerContextDeque.offerFirst(ReaderContext.ARRAY_CONTEXT);
+        }
 
         switch (curBsonType) {
             case END_OF_DOCUMENT:
@@ -185,6 +189,16 @@ public class JacksonBsonParser extends JsonParser {
                 throw new BSONException(format("Unexpected ContextType %s.", curBsonType));
         }
 
+        parsePrimitiveType();
+
+        if (curToken != JsonToken.FIELD_NAME) {
+            curToken = tokenOfCurValue;
+        }
+
+        return curToken;
+    }
+
+    private void parsePrimitiveType() {
         switch (curBsonType) {
             case DOUBLE:
                 curValue = reader.readDouble();
@@ -208,7 +222,7 @@ public class JacksonBsonParser extends JsonParser {
                 break;
             case UNDEFINED:
                 reader.readUndefined();
-                //TODO: throw error here or sth?
+                //TODO: throw error?
                 break;
             case OBJECT_ID:
                 curValue = reader.readObjectId();
@@ -216,7 +230,7 @@ public class JacksonBsonParser extends JsonParser {
                 break;
             case BOOLEAN:
                 curValue = reader.readBoolean();
-                tokenOfCurValue = ((Boolean)curValue) ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
+                tokenOfCurValue = ((Boolean) curValue) ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
                 break;
             case DATE_TIME:
                 curValue = new Date(reader.readDateTime());
@@ -273,12 +287,9 @@ public class JacksonBsonParser extends JsonParser {
                 curValue = "MaxKey";
                 tokenOfCurValue = JsonToken.VALUE_STRING;
                 break;
-
+            default:
+                throw new BSONException(format("Unexpected ContextType %s.", curBsonType));
         }
-
-        if (curToken != JsonToken.FIELD_NAME) curToken = tokenOfCurValue;
-
-        return curToken;
     }
 
     @Override
@@ -357,16 +368,16 @@ public class JacksonBsonParser extends JsonParser {
     }
 
     @Override
-    public void overrideCurrentName(String s) {
+    public void overrideCurrentName(final String s) {
         curFieldName = s;
     }
 
     public int getIntValue() throws IOException {
-        return (Integer)curValue;
+        return (Integer) curValue;
     }
 
     public long getLongValue() throws IOException {
-        return (Long)curValue;
+        return (Long) curValue;
     }
 
     public JsonParser.NumberType getNumberType() throws IOException {
@@ -375,15 +386,15 @@ public class JacksonBsonParser extends JsonParser {
     }
 
     public Date getDateValue() {
-        return (Date)curValue;
+        return (Date) curValue;
     }
 
     public Number getNumberValue() throws IOException {
-        return (Number)curValue;
+        return (Number) curValue;
     }
 
     public char[] getTextCharacters() throws IOException {
-        return ((String)curValue).toCharArray();
+        return ((String) curValue).toCharArray();
     }
 
     @Override
@@ -415,19 +426,19 @@ public class JacksonBsonParser extends JsonParser {
     }
 
     public double getDoubleValue() throws IOException {
-        return (Double)curValue;
+        return (Double) curValue;
     }
 
     public BsonTimestamp getTimestampValue() {
-        return (BsonTimestamp)curValue;
+        return (BsonTimestamp) curValue;
     }
 
     public BsonJavaScript getJavascriptValue() {
-        return (BsonJavaScript)curValue;
+        return (BsonJavaScript) curValue;
     }
 
     public float getFloatValue() throws IOException {
-        return ((Double)curValue).floatValue();
+        return ((Double) curValue).floatValue();
     }
 
     public BigDecimal getDecimalValue() throws IOException {
@@ -438,17 +449,17 @@ public class JacksonBsonParser extends JsonParser {
         return curValue;
     }
 
-    public byte[] getBinaryValue(Base64Variant base64Variant) throws IOException {
-        return ((BsonBinary)curValue).getData();
+    public byte[] getBinaryValue(final Base64Variant base64Variant) throws IOException {
+        return ((BsonBinary) curValue).getData();
     }
 
     @Override
-    public String getValueAsString(String s) throws IOException {
-        return (String)curValue;
+    public String getValueAsString(final String s) throws IOException {
+        return (String) curValue;
     }
 
     public boolean getBooleanValue() throws IOException {
-        return (Boolean)curValue;
+        return (Boolean) curValue;
     }
 
     public byte getByteValue() throws IOException {
@@ -456,11 +467,11 @@ public class JacksonBsonParser extends JsonParser {
     }
 
     public short getShortValue() throws IOException {
-        return (Short)curValue;
+        return (Short) curValue;
     }
 
     @Override
     public ObjectId getObjectId() {
-        return (ObjectId)curValue;
+        return (ObjectId) curValue;
     }
 }

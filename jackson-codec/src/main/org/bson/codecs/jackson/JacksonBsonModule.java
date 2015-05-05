@@ -35,7 +35,7 @@ public class JacksonBsonModule extends Module{
     }
 
     @Override
-    public void setupModule(SetupContext context) {
+    public void setupModule(final SetupContext context) {
         context.addSerializers(new JacksonBsonSerializers());
         context.addDeserializers(new JacksonBsonDeserializers());
     }

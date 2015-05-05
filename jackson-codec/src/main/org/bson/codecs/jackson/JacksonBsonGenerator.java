@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -158,7 +159,7 @@ public class JacksonBsonGenerator<T> extends JsonGenerator {
 
     @Override
     public void writeString(final char[] chars, final int i, final int i1) throws IOException {
-        writer.writeString(new String(Arrays.copyOfRange(chars,i,i1)));
+        writer.writeString(new String(Arrays.copyOfRange(chars, i, i1)));
     }
 
     @Override
@@ -178,12 +179,12 @@ public class JacksonBsonGenerator<T> extends JsonGenerator {
 
     @Override
     public void writeRaw(final String s) throws IOException {
-        writer.writeBinaryData(new BsonBinary(s.getBytes()));
+        writer.writeBinaryData(new BsonBinary(s.getBytes(Charset.forName("UTF-8"))));
     }
 
     @Override
     public void writeRaw(final String s, final int i, final int i1) throws IOException {
-        writer.writeBinaryData(new BsonBinary(s.substring(i,i1).getBytes()));
+        writer.writeBinaryData(new BsonBinary(s.substring(i, i1).getBytes(Charset.forName("UTF-8"))));
     }
 
     @Override
@@ -198,12 +199,12 @@ public class JacksonBsonGenerator<T> extends JsonGenerator {
 
     @Override
     public void writeRawValue(final String s) throws IOException {
-        writer.writeString(s );
+        writer.writeString(s);
     }
 
     @Override
     public void writeRawValue(final String s, final int i, final int i1) throws IOException {
-        writer.writeString(s.substring(i,i1));
+        writer.writeString(s.substring(i, i1));
     }
 
     @Override
@@ -213,7 +214,7 @@ public class JacksonBsonGenerator<T> extends JsonGenerator {
 
     @Override
     public void writeBinary(final Base64Variant base64Variant, final byte[] bytes, final int i, final int i1) throws IOException {
-        writer.writeBinaryData(new BsonBinary(base64Variant.encode(bytes).getBytes()));
+        writer.writeBinaryData(new BsonBinary(base64Variant.encode(bytes).getBytes(Charset.forName("UTF-8"))));
     }
 
     @Override
@@ -248,7 +249,7 @@ public class JacksonBsonGenerator<T> extends JsonGenerator {
 
     @Override
     public void writeNumber(final float v) throws IOException {
-        writer.writeDouble((double)v);
+        writer.writeDouble((double) v);
     }
 
     @Override
@@ -299,7 +300,7 @@ public class JacksonBsonGenerator<T> extends JsonGenerator {
     }
 
     public void writeRegex(final Pattern regex) throws IOException {
-        writer.writeRegularExpression(new BsonRegularExpression(regex.pattern(), regex.flags()+""));
+        writer.writeRegularExpression(new BsonRegularExpression(regex.pattern(), regex.flags() + ""));
     }
 
     public void writeObjectId(final ObjectId id) throws IOException {

@@ -28,7 +28,9 @@ public class JacksonObjectIdSerializer extends JacksonBsonSerializer<ObjectId> {
 
 
     @Override
-    public void serialize(ObjectId value, JacksonBsonGenerator<ObjectId> generator, SerializerProvider provider) throws IOException {
+    public void serialize(final ObjectId value,
+                          final JacksonBsonGenerator<ObjectId> generator,
+                          final SerializerProvider provider) throws IOException {
         if (value == null) {
             provider.defaultSerializeNull(generator);
         } else {
